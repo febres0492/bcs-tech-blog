@@ -1,1 +1,1 @@
-# bcs-tech-blo
+# bcs-tech-blog

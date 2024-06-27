@@ -1,0 +1,41 @@
+<div class="container text-white" style="--pb:18; --maxw:540px;" >
+    <div class="row">
+        <div class="col tac" style="--pt:10; --pb:12;">
+            <h1 style="--fw:900;">BCS Tech Blog</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col py-4 border border-secondary rounded bg-l1">
+            <form id="signup-form" class=" form signup-form rounded px-3 py-1">
+                <h2 style="--fw:700;">Create Account</h2>
+                <div class="form-group d-flex flex-column rounded p-3 bg-d2">
+                    <label for="name-signup">First Name:</label>
+                    <input class="form-input" type="text" id="name-signup" autocomplete="name-signup" required/>
+                </div>
+                <div class="form-group d-flex flex-column rounded p-3 bg-d2">
+                    <label for="last-name-signup">Last Name:</label>
+                    <input class="form-input" type="text" id="last-name-signup" autocomplete="last-name-signup" required/>
+                </div>
+                <div class="form-group d-flex flex-column rounded p-3 bg-d2">
+                    <label for="email-signup">Email:</label>
+                    <input class="form-input" type="text" id="email-signup" autocomplete="email-signup" required/>
+                </div>
+                <div class="form-group d-flex flex-column rounded p-3 bg-d2">
+                    <label for="password-signup">Password:</label>
+                    <input class="form-input" type="password" id="password-signup" autocomplete="password-signup" required/>
+                </div>
+                <div class="form-group d-flex flex-column rounded p-3 bg-d2">
+                    <label for="repeat-password-signup">Repeat Password:</label>
+                    <input class="form-input" type="password" id="repeat-password-signup" autocomplete="repeat-password-signup" required/>
+                </div>
+                <div class="form-group d-flex flex-column rounded" style="--g:3;">
+                    <button class="btn btn-primary" type="submit">Create Account</button>
+                    <p class="mt-4 mb-0">Already have an account?</p>
+                    <button class="btn border" onclick="window.location.href='/login'" type="button">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/js/signup.js"></script>

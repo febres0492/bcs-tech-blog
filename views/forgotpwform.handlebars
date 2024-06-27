@@ -1,0 +1,25 @@
+<div class="container text-white" style="--maxw:540px;">
+    <div class="row">
+        <div class="col tac" style="--pb:15;">
+            <h1 style="--fw:900;">BCS Tech Blog</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col border-secondary rounded bg-l1 p-4">
+            <h2 style="--fw:700;">Forgot Password</h2>
+            <form class="form login-form">
+                <div class="form-group d-flex flex-column rounded bg-d2 p-3">
+                    <label for="email-login">Email:</label>
+                    <input class="form-input border" type="text" id="email-login" autocomplete="email" required />
+                </div>
+                <div class="form-group d-flex flex-column" style="--g:3;">
+                    <button class="btn btn-primary" onclick="sendResetEmail(event)" type="submit">Send Token</button>
+                    <button class="btn border"  onclick="window.location.href='/login'" type="button">Login</button>
+                    <button class="btn border" onclick="window.location.href='/signup'" type="button">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+

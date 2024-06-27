@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/general-style.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>BCS Tech Blog</title>
+</head>
+
+<body class="text-white bg-gradient">
+    <header class="container-fluid abs bg-d2 p-0">
+        {{> navbar}}
+    </header>
+    <main class="container-fluid df fg px-0">
+        {{{ body }}}
+    </main>
+
+    {{> modal}}
+
+    {{#if logged_in}}
+        <script src="/js/logout.js"></script>
+    {{/if}}
+
+    <!-- Popper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/utilities.js"></script>
+    <script src="/js/main.js"></script>
+
+</body>
+
+</html>

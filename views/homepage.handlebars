@@ -1,0 +1,29 @@
+<section class="container-fluid d-flex flex-column p-0" style="--minh:100vh;">
+    <div class="row px-3" style="--pt:15">
+        <div class="col d-flex flex-column flex-sm-row bg-d2 rounded aic p-2 px-3">
+            <form class="form search-form d-flex ais p-0 my-2" style="--g:0;">
+                <div class="rel p-0 fg ">
+                    <input id="searchBar" class="w-100" type="text" name="search" placeholder="Movies or Books ..." autocomplete="off" onkeydown="searchInput(event)" >
+                    <div id="prev-search-dropdown" class="abs d-flex flex-column">
+                        {{!-- the previous searched items go here --}}
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-primary rounded" type="button" id="search-button" onclick="searchBtn(event)">search</button>
+            </form>
+            <span class="divider pl-1 rounded mx-1 bg-l2 d-none d-sm-inline"></span>
+            <div class="df jcc p-2 bg-d2 rounded aib m-auto fg" style="--g:2;">
+                <h5 class="m-0">View Favorites:</h5>
+                <div>
+                    <button class="btn btn-sm bg-d2" onclick="handleBtn(this)" value="movie">Movies</button>
+                    <button class="btn btn-sm bg-d2" onclick="handleBtn(this)" value="book">Books</button>
+                    <button class="btn btn-sm bg-d2" onclick="handleBtn(this)" value="all">All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="main-content" class="row fg">
+        {{!-- this is for dinamic content --}}
+    </div>
+</section>
+<script src="/js/homepage.js"></script>
+<script src="/js/utilities.js"></script>

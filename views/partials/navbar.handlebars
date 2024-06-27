@@ -1,0 +1,19 @@
+{{#if logged_in}}
+    <nav class="df jcsb aic px-3 py-2 bg-d2 rounded">
+        <h4 class="m-0">BCS Tech Blog</h4>
+        <div>
+            {{#unless homePage}}
+                <button id="homeBtn" class="btn btn-sm text-white bg-d1" onclick="window.location.href='/'" type="button">Home</button>
+            {{/unless}}
+            <div class="dropdown">
+                <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">{{currUser.name}}</button>
+                <div class="dropdown-content rounded bg-ac1">
+                    <div class="d-flex flex-column px-2 bg-d2 py-2">
+                        <button class="btn btn-sm mb-1 border" id="account-settings" onclick="window.location.href='/user_settings'" type="button">Account</button>
+                        <button class="btn btn-sm mb-1 border" id="logout" onclick="logout()">logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+{{/if}}
