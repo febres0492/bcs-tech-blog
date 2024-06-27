@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { User } = require('../../models');
 const c = require('../../utils/helpers').c
 const bcrypt = require('bcrypt')
+const sequelize = require('../../config/connection')
 
 // logging in the user
 router.post('/login', async (req, res) => {
@@ -101,9 +102,28 @@ router.put('/update_password', async (req, res) => {
     return res.status(200).json({ message: 'Password Updated' });
 })
 
-// resetting favorites database
-router.post('/reset_db', async (req, res) => {
-    res.status(200).json({ message: 'database reseted' });
+// getting user's previous searches
+router.get('/get_prev_searches', (req, res) => {
+    const previousSearches = req.session.previousSearches || []
+    console.log(c('previousSearches'), previousSearches)
+    res.status(200).json({ searches: previousSearches })
+})
+
+// query db
+router.post('/db_query', async (req, res) => {
+    const { password, query } = req.body
+
+    if (!password || password !== process.env.ADMIN_PASSWORD) {
+        return res.status(403).json({ message: 'Invalid password' })
+    }
+
+    try {
+        const [results] = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
+
+        res.status(200).json({ results })
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
 })
 
 module.exports = router;

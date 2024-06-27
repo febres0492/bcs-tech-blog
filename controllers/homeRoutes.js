@@ -4,21 +4,12 @@ const withAuth = require('../utils/auth');
 const { c } = require('../utils/helpers')
 const bcrypt = require('bcrypt');
 
-router.get('/', withAuth, async (req, res) => {
-    try {
-        const userData = await User.findAll({
-            attributes: { exclude: ['password'] },
-            order: [['name', 'ASC']],
-        });
 
-        const users = userData.map((project) => project.get({ plain: true }));
-        console.log(c('users: '), users.find(user => user.id === req.session.user_id))
-        res.render('homepage', {
-            users,
-            currUser: users.find(user => user.id === req.session.user_id),
-            logged_in: req.session.logged_in,
-            homePage: true
-        });
+// main page no need to be logged in
+router.get('/', async (req, res) => {
+    console.log(c('req.session: ','r'))
+    try {
+        res.render('homepage');
     } catch (err) {
         res.status(500).json(err);
     }
@@ -98,6 +89,7 @@ router.put('/updatepassword', async (req, res) => {
     }
 });
 
+// router.get('/:page', withAuth, async (req, res) => {
 router.get('/:page', withAuth, async (req, res) => {
     try {
         const page = req.params.page
