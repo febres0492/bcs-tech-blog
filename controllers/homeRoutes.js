@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 router.get('/', async (req, res) => {
     console.log(c('req.session: ','r'))
     try {
-        res.render('homepage');
+        res.render('homepage', {homePage: true});
     } catch (err) {
         res.status(500).json(err);
     }
