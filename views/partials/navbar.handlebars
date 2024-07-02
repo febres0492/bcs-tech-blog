@@ -4,7 +4,7 @@
         <button class="btn btn-sm border">Dashboard</button>
     </div>
     <div>
-        <button class="btn btn-sm border">Login</button>
+        <button class="btn btn-sm border" onclick="showLoginForm()">Login</button>
         {{#unless homePage}}
             <button id="homeBtn" class="btn btn-sm text-white bg-d1" onclick="window.location.href='/'" type="button">Home</button>
         {{/unless}}

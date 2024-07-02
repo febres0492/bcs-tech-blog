@@ -50,45 +50,6 @@ router.get('/passwordresetform', (req, res) => {
     res.render('passwordresetform')
 })
 
-router.put('/updatepassword', async (req, res) => {
-    try {
-        // Import token from database
-        const tokenItem = await Token.findOne({ where: { user_email: req.body.email } });
-
-        if (!tokenItem) {
-            return res.status(400).json({ message: 'Token not found. Please make sure is the right token' });
-        }
-
-        if (req.body.token !== tokenItem.token) {
-            return res.status(400).json({ message: 'Token doesn\'t match. Please make sure is the right token' });
-        }
-        
-        const currentUser = await User.findOne({ where: { email: req.body.email } });
-        if (!currentUser) {
-            return res.status(404).json({ message: 'User not found. Please check the email' });
-        }
-
-        const isNewPassSameAsCurPass = await bcrypt.compare(req.body.newPassword, currentUser.password);
-        if(isNewPassSameAsCurPass){
-            return res.status(400).json({ message: 'New password cannot be the same as Old password' });
-        }
-        
-        const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
-        currentUser.password = hashedPassword;
-        await currentUser.save();
-
-        // loggin in the user
-        req.session.user_id = currentUser.id;
-        req.session.logged_in = true;
-
-        res.status(200).json({ message: 'Password updated successfully' });
-
-    } catch (error) {
-        console.error('Error updating password:', error);
-        res.status(500).json({ message: 'An error occurred while updating the password' });
-    }
-});
-
 // router.get('/:page', withAuth, async (req, res) => {
 router.get('/:page', withAuth, async (req, res) => {
     try {

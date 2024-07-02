@@ -102,25 +102,58 @@ router.put('/update_password', async (req, res) => {
     return res.status(200).json({ message: 'Password Updated' });
 })
 
-// getting user's previous searches
-router.get('/get_prev_searches', (req, res) => {
-    const previousSearches = req.session.previousSearches || []
-    console.log(c('previousSearches'), previousSearches)
-    res.status(200).json({ searches: previousSearches })
-})
+// updating user's password when logged out
+router.put('/updatepassword', async (req, res) => {
+    try {
+        // Import token from database
+        const tokenItem = await Token.findOne({ where: { user_email: req.body.email } });
+
+        if (!tokenItem) {
+            return res.status(400).json({ message: 'Token not found. Please make sure is the right token' });
+        }
+
+        if (req.body.token !== tokenItem.token) {
+            return res.status(400).json({ message: 'Token doesn\'t match. Please make sure is the right token' });
+        }
+        
+        const currentUser = await User.findOne({ where: { email: req.body.email } });
+        if (!currentUser) {
+            return res.status(404).json({ message: 'User not found. Please check the email' });
+        }
+
+        const isNewPassSameAsCurPass = await bcrypt.compare(req.body.newPassword, currentUser.password);
+        if(isNewPassSameAsCurPass){
+            return res.status(400).json({ message: 'New password cannot be the same as Old password' });
+        }
+        
+        const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
+        currentUser.password = hashedPassword;
+        await currentUser.save();
+
+        // loggin in the user
+        req.session.user_id = currentUser.id;
+        req.session.logged_in = true;
+
+        res.status(200).json({ message: 'Password updated successfully' });
+
+    } catch (error) {
+        console.error('Error updating password:', error);
+        res.status(500).json({ message: 'An error occurred while updating the password' });
+    }
+});
 
 // query db
 router.post('/db_query', async (req, res) => {
-    const { password, query } = req.body
+    const { password, query } = req.body;
+    console.log(c('query db'), req.body, query)
 
-    if (!password || password !== process.env.ADMIN_PASSWORD) {
+    if (password == undefined || !password || password !== process.env.ADMIN_PASSWORD) {
         return res.status(403).json({ message: 'Invalid password' })
     }
 
     try {
         const [results] = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
-
-        res.status(200).json({ results })
+        res.status(200).json({ message: 'success', results })
     } catch (error) {
         res.status(400).json({ message: error.message })
     }

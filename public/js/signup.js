@@ -16,7 +16,7 @@ $('#signup-form').on('submit', function(event) {
     }
     if (name_lastname && email && password) {
         $.ajax({
-            url: '/api/users/signup',
+            url: '/api/user/signup',
             data: { name_lastname, email, password },
             method: 'POST'
         }).then((res) => {

@@ -22,9 +22,24 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col">
+            <form class="form blog-form p-3">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" class="form-control" id="blog-form-title" name="title" placeholder="Enter title" value="Blog Test">
+                </div>
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <textarea class="form-control" id="blog-form-content" name="content" rows="5" >This is a test blog post.</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" onclick="postBlog(event)">Submit</button>
+            </form>
+        </div>
+    </div>
     <div id="main-content" class="row fg">
         {{!-- this is for dinamic content --}}
     </div>
-</section>
+</section> 
 <script src="/js/homepage.js"></script>
 <script src="/js/utilities.js"></script>
