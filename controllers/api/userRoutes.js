@@ -9,22 +9,25 @@ router.post('/login', async (req, res) => {
     console.log(c('logging in the user','r'), req.body)
     try {
         const userData = await User.findOne({ where: { email: req.body.email } });
-        if (!userData) {
-            res
-                .status(400)
-                .json({ message: 'Incorrect email or password, please try again' });
-            return;
+        if (userData == null) {
+            return res.status(400).json({ message: 'Email not found. <br>Please verify the email.' });
         }
 
-        const validPassword = await userData.checkPassword(req.body.password);
+        const validPassword = userData.checkPassword(req.body.password);
         console.log(c('validPassword'), validPassword)
         if (!validPassword) {
             return res.status(400).json({ message: 'Incorrect email or password, please try again' });
         }
 
+        const currUser = userData.get({ plain: true })
+        delete currUser.password
+
+        console.log(c('currUser'), currUser)
+
         req.session.save(() => {
             req.session.user_id = userData.id;
             req.session.logged_in = true;
+            req.session.currUser = currUser
             console.log(c('You are now logged in'))
             res.json({ user: userData, message: 'You are now logged in!' });
         });
@@ -37,6 +40,7 @@ router.post('/login', async (req, res) => {
 
 // logging out the user
 router.post('/logout', (req, res) => {
+    console.log(c('logging out the user','r'))
     if (req.session.logged_in) {
         req.session.destroy(() => {
             res.status(204).end();
@@ -141,6 +145,16 @@ router.put('/updatepassword', async (req, res) => {
         res.status(500).json({ message: 'An error occurred while updating the password' });
     }
 });
+
+// getting the current user
+router.get('/current_user', (req, res) => {
+    console.log(c('getting the current user','r'))
+    if (req.session.logged_in) {
+        res.json(req.session.currUser);
+    } else {
+        res.status(404).end();
+    }
+})
 
 // query db
 router.post('/db_query', async (req, res) => {

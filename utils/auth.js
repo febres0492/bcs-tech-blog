@@ -6,4 +6,11 @@ const withAuth = (req, res, next) => {
     }
 };
 
-module.exports = withAuth;
+function whenLoggedIn (req, res, next) {
+    if (req.session.logged_in) {
+        return next()
+    }
+    res.status(401).json({ message: 'Unauthorized access' })
+}
+
+module.exports = { withAuth, whenLoggedIn }

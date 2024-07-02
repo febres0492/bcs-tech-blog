@@ -135,8 +135,18 @@ function queryDB(password, query) {
     });
 }
 
-function showLoginForm() {
-    
+function logout() {
+    $.ajax({
+        url: 'api/user/logout',
+        type: 'POST',
+        success: function(response) {
+            console.log('response:', response)
+            window.location.href='/'
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error)
+        }
+    });
 }
 
 function postBlog(ev) {
@@ -153,6 +163,61 @@ function postBlog(ev) {
         data: JSON.stringify({ title, content }),
         success: function(response) {
             console.log('response:', response)
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error)
+        }
+    });
+}
+
+function getBlogs() {
+    return $.ajax({
+        url: 'api/blog',
+        type: 'GET',
+        success: function(response) {
+            console.log('response:', response)
+            return response
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error)
+        }
+    });
+}
+
+async function showBlogs() {
+    const blogs = await getBlogs()
+
+    const currUser = await getCurUser()
+
+    console.log('currUser:', currUser)
+    
+    $('#blogs-container').empty();
+    [...blogs].forEach(blog => {
+
+        const isAuthor = currUser.id == blog.authorId
+
+        $('#blogs-container').append(`
+            <div class="blog-card border p-3" data-info="${blog}">
+                <div class="d-flex jcsb bg-d2 p-2">
+                    <h3 class="m-0">${blog.title}</h3>
+                    <p class="m-0">By: ${blog.authorName}</p>
+                </div>
+                <p>${blog.content}</p>
+                ${isAuthor && `<button class="btn btn-primary">Edit</button>` || ''}
+                ${isAuthor && `<button class="btn btn-danger">Delete</button>` || ''}
+                <button class="btn btn-info">Comment</button>
+            </div>
+        `)
+    })
+}
+
+function getCurUser() {
+    return $.ajax({
+        url: 'api/user/current_user',
+        type: 'GET',
+        success: function(response) {
+            console.log('response:', response)
+            return response
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
