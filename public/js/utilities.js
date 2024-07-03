@@ -1,6 +1,8 @@
 
 // function to generate the movie card
 
+function capFirt(str) { return str.charAt(0).toUpperCase() + str.slice(1) }
+
 function showMessageInModal(message) {
     $('.modal-body').empty();
     $('.modal-body').html(`
@@ -8,7 +10,7 @@ function showMessageInModal(message) {
             <h3>${message}</h3>
         </div>
     `)
-    $('#exampleModal').modal('show'); 
+    $('#bs-modal').modal('show'); 
 }
 
 function sendResetEmail(e){
@@ -80,7 +82,7 @@ function loadPasswordForm(e){
         </div>
     `)
 
-    $('#exampleModal').modal('show')
+    $('#bs-modal').modal('show')
 
     $('.submit-btn').on('click', ()=>{
 
@@ -149,20 +151,25 @@ function logout() {
     });
 }
 
-function postBlog(ev) {
+function sendPostBlogReq(ev) {
     ev.preventDefault()
-    const title = $('#blog-form-title').val()
-    const content = $('#blog-form-content').val()
+    const form = $(ev.target).closest('form')
+    const title = form.find('.form-control[name="title"]').val()
+    const content = form.find('.form-control[name="content"]').val()
 
     console.log('data', { title, content })
+
+    // hiding modal
+    $('#bs-modal').modal('hide')
 
     $.ajax({
         url: 'api/blog',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ title, content }),
-        success: function(response) {
-            console.log('response:', response)
+        success: function(blog) {
+            console.log('new blog:', blog)
+            prependBlog(blog)
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -184,7 +191,51 @@ function getBlogs() {
     });
 }
 
-async function showBlogs() {
+function getBlogById(blogId) {
+    return $.ajax({
+        url: `api/blog/${blogId}`,
+        type: 'GET',
+        success: function(response) {
+            console.log('response:', response)
+            return response
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error)
+        }
+    });
+}
+
+function getBlogCardTemplate(obj) {
+
+    const { blog, cardId } = obj
+
+    console.log('getBlogCardTemplate:', obj)
+    const blogStr = JSON.stringify(blog).replace(/"/g, "'")
+    const isAuthor = obj.isAuthor || false
+
+    return `
+        <div id="${cardId}" class="blog-card border p-3" data-info="${blog}">
+            <div class="d-flex jcsb bg-d2 p-2">
+                <h3 class="blog-title m-0">${blog.title}</h3>
+                <p class="m-0">By: ${blog.authorName}</p>
+            </div>
+            <p class="blog-content">${blog.content}</p>
+            ${isAuthor && `<button class="btn btn-primary" onclick="showEditBlogForm(${blogStr})">Edit</button>` || ''}
+            ${isAuthor && `<button class="btn btn-danger" onclick="sendDeleteBlogReq(${blogStr})">Delete</button>` || ''}
+            <button class="btn btn-info" onclick="showCommentForm(${blog.id})">Comment</button>
+        </div>
+    `
+}
+
+function prependBlog(blog) {
+
+    console.log('prependBlog ------------- :', blog)
+    const cardId = `${blog.authorName[0]}${blog.authorId}_${blog.id}`
+    blog.cardId = cardId
+    $('#blogs-container').prepend( getBlogCardTemplate({ blog, cardId, isAuthor: true }) )
+}
+
+async function renderBlogs() {
     const blogs = await getBlogs()
 
     const currUser = await getCurUser()
@@ -192,23 +243,33 @@ async function showBlogs() {
     console.log('currUser:', currUser)
     
     $('#blogs-container').empty();
-    [...blogs].forEach(blog => {
+    [...blogs].reverse().forEach(blog => {
 
         const isAuthor = currUser.id == blog.authorId
+        const cardId = `${blog.authorName[0]}${blog.authorId}_${blog.id}`
+        blog.cardId = cardId
+        const blogStr = JSON.stringify(blog).replace(/"/g, "'")
 
-        $('#blogs-container').append(`
-            <div class="blog-card border p-3" data-info="${blog}">
-                <div class="d-flex jcsb bg-d2 p-2">
-                    <h3 class="m-0">${blog.title}</h3>
-                    <p class="m-0">By: ${blog.authorName}</p>
-                </div>
-                <p>${blog.content}</p>
-                ${isAuthor && `<button class="btn btn-primary">Edit</button>` || ''}
-                ${isAuthor && `<button class="btn btn-danger">Delete</button>` || ''}
-                <button class="btn btn-info">Comment</button>
-            </div>
-        `)
+        $('#blogs-container').append( getBlogCardTemplate({ blog, cardId, isAuthor, blogStr }) )
+
     })
+}
+
+function sendDeleteBlogReq(obj) {
+
+    obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
+
+    $.ajax({
+        url: `api/blog/${obj.id}`,
+        type: 'DELETE',
+        success: function(response) {
+            console.log('response:', response)
+            $(`#${obj.cardId}`).remove()
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error)
+        }
+    });
 }
 
 function getCurUser() {
@@ -223,4 +284,102 @@ function getCurUser() {
             console.error('Error:', error)
         }
     });
+}
+
+async function showPostBlogForm() {
+    console.log('showPostBlogForm')
+    $('.modal-header').html(` <div class="d-flex"> <h3 cl>Create Blog Post</h3> </div> `)
+    $('.modal-body').empty()
+    $('.modal-body').html(`
+        <div class="col-12 py-2">
+            <form id="create-blog-form">
+                <div class="form-group tal">
+                    <label for="create-blog-form-title">Title</label>
+                    <input type="text" class="form-control" name="title" placeholder="Blog Title" required>
+                </div>
+                <div class="form-group tal">
+                    <label for="create-blog-form-content">Content</label>
+                    <textarea class="form-control" name="content" required rows="3" placeholder="Blog Content"></textarea>
+                </div>
+                <button type="button" class="submit-btn btn btn-primary" onclick="sendPostBlogReq(event)">Submit</button>
+            </form>
+        </div>
+    `)
+
+    $('#bs-modal').modal('show')
+}
+
+async function showEditBlogForm(obj) {
+
+    const data = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
+
+    console.log('showEditBlogForm:', data)
+
+    if (!data.id) { return showMessageInModal('Blog not found!') }
+
+    let blogData = await getBlogById(data.id)
+
+    if (!blogData) { return showMessageInModal('Blog not found!') }
+
+    const blogStr = JSON.stringify(data).replace(/"/g, "'")
+
+    console.log('blog --->:', data)
+
+    $('.modal-header').html(` <div class="d-flex"> <h3 cl>Edit Blog Post</h3> </div> `)
+    $('.modal-body').empty()
+    $('.modal-body').html(`
+        <div class="col-12 py-2">
+            <form id="edit-blog-form">
+                <div class="form-group tal">
+                    <label for="edit-blog-form-title">Title</label>
+                    <input type="text" class="form-control" id="edit-blog-form-title" value="${data.title}" required>
+                </div>
+                <div class="form-group tal">
+                    <label for="edit-blog-form-content">Content</label>
+                    <textarea id="edit-blog-form-content" class="form-control" required rows="3">${data.content}</textarea>
+                </div>
+                <button type="button" class="submit-btn btn btn-primary" onclick="sendEditBlogReq(${blogStr})">Submit</button>
+            </form>
+        </div>
+    `)
+
+    $('#bs-modal').modal('show')
+}
+
+function sendEditBlogReq(obj) {
+
+    obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
+
+    console.log('obj--------', obj)
+
+    const data = {
+        id: obj.id,
+        title: $('#edit-blog-form-title').val(),
+        content: $('#edit-blog-form-content').val()
+    }
+
+    $.ajax({
+        url: `api/blog/${obj.id}`,
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            console.log('response:', response)
+            response.cardId = obj.cardId
+            updateBlogCard(response)
+            $('#bs-modal').modal('hide')
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error)
+        }
+    });
+}
+
+function updateBlogCard(obj) {
+    const blogCard = $(`#${obj.cardId}`)
+
+    console.log('obj:', obj, blogCard)
+
+    blogCard.find('.blog-title').text(obj.title)
+    blogCard.find('.blog-content').text(obj.content)
 }

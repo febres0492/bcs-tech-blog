@@ -3,6 +3,6 @@
 
 //     modalBody.textContent = message;
 
-//     $('#exampleModal').modal('show'); 
+//     $('#bs-modal').modal('show'); 
 // }
 
