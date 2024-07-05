@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col border-secondary rounded bg-l1 p-4">
             <h2 style="--fw:700;">Login</h2>
-            <form class="form login-form">
+            <form class="form login-form" onsubmit="login(event)">
                 <div class="form-group d-flex flex-column rounded bg-d2 p-3">
                     <label for="email-login">Email:</label>
                     <input class="form-input border" type="text" id="email-login" autocomplete="email" required />
@@ -17,7 +17,7 @@
                     <input class="form-input border px-2" type="password" id="password-login" autocomplete="current-password" required />
                 </div>
                 <div class="form-group d-flex flex-column" style="--g:3;">
-                    <button class="btn rounded btn-primary" style=" --fw:700;" type="submit">Login</button>
+                    <button class="btn rounded btn-primary" style=" --fw:700;" type="button" onclick="login(event)">Login</button>
                     <button class="btn rounded border" style=" --fw:700;" onclick="window.location.href='/forgotpwform'" type="button">Forgot Password</button>
                     <button class="btn rounded border" style=" --fw:700;" onclick="window.location.href='/signup'" type="button">Create Account</button>
                 </div>

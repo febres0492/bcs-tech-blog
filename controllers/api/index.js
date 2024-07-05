@@ -1,14 +1,3 @@
-// const router = require('express').Router();
-// const userRoutes = require('./userRoutes');
-// const token = require('./valTokenRoutes');
-// const blogRoutes = require('./blogRoutes');
-
-// router.use('/users', userRoutes);
-// router.use('/token', token);
-// router.use('/blog', blogRoutes);
-
-// module.exports = router;
-
 const fs = require('fs');
 const path = require('path');
 const router = require('express').Router();

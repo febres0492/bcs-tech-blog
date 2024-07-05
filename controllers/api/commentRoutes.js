@@ -1,0 +1,97 @@
+const router = require('express').Router();
+const { User, Comments, BlogPost } = require('../../models');
+const c = require('../../utils/helpers').c
+const whenLoggedIn = require('../../utils/auth').whenLoggedIn
+
+// comment on a blog post
+router.post('/', whenLoggedIn, async (req, res) => {
+    console.log(c('comment on a blog post','r'), req.session.user_id, req.body, req.params)
+    try {
+        console.log(c('req.body','y'), req.body)
+        const comment = await Comments.create({ ...req.body })
+
+        // returning blogPost data
+        const blogPostData = await BlogPost.findByPk(comment.blogPostId, {
+            include: [
+                { model: User, attributes: ['name'] },
+                { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
+            ]
+        } )
+        res.status(200).json(blogPostData)
+        
+    } catch (err) {
+        console.log('Error:', err)
+        res.status(500).json(err)
+    }
+});
+
+// edit a comment by id
+router.put('/:id', whenLoggedIn, async (req, res) => {
+    console.log(c('edit a comment by id','r'), req.session.user_id, req.body, req.params)
+    try {
+        const commentData = await Comments.update(req.body, {
+            where: {
+                id: req.params.id,
+                commentCreatorId: req.session.user_id
+            }
+        })
+        if (!commentData) {
+            return res.status(401).json({ message: 'No comment found with this id!' })
+        }
+
+        // returning blogPost data
+        const comment = await Comments.findByPk(req.params.id)
+        const blogPostData = await BlogPost.findByPk(comment.blogPostId, {
+            include: [
+                { model: User, attributes: ['name'] },
+                { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
+            ]
+        } )
+
+        res.status(200).json(blogPostData)
+
+    } catch (err) {
+        console.log('Error:', err)
+        res.status(500).json(err)
+    }
+});
+
+// delete a comment by id
+router.delete('/:id', whenLoggedIn, async (req, res) => {
+    console.log(c('delete a comment by id','r'), req.session.user_id, req.params)
+    try {
+
+        const comment = await Comments.findByPk(req.params.id)
+        console.log(c('comment','y'),comment.commentCreatorId == req.session.user_id, comment.commentCreatorId, req.session.user_id)
+
+        const isCommentCreator = comment.commentCreatorId == req.session.user_id
+        const isBlogPostCreator = comment.blogPostCreatorId == req.session.user_id
+
+        if (!isCommentCreator && !isBlogPostCreator) {
+            return res.status(401).json({ message: 'Unauthorized access' })
+        }
+
+        const commentData = await Comments.destroy({
+            where: { id: req.params.id, }
+        })
+
+        if (!commentData) {
+            return res.status(401).json({ message: 'No comment found with this id!' })
+        }
+
+        // returning blogPost data
+        const blogPostData = await BlogPost.findByPk(comment.blogPostId, {
+            include: [
+                { model: User, attributes: ['name'] },
+                { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
+            ]
+        } )
+        res.status(200).json(blogPostData)
+    } catch (err) {
+        console.log('Error:', err)
+        res.status(500).json(err)
+    }
+});
+
+
+module.exports = router;

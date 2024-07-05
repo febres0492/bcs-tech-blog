@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, BlogPost } = require('../../models');
+const { User, BlogPost, Comments } = require('../../models');
 const c = require('../../utils/helpers').c
 const whenLoggedIn = require('../../utils/auth').whenLoggedIn
 
@@ -8,10 +8,8 @@ router.get('/', async (req, res) => {
     try {
         const blogData = await BlogPost.findAll({
             include: [
-                {
-                    model: User,
-                    attributes: ['name']
-                }
+                { model: User, attributes: ['name'] },
+                { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
             ]
         });
         res.status(200).json(blogData);
@@ -42,12 +40,11 @@ router.get('/:id', async (req, res) => {
     try {
         const blogData = await BlogPost.findByPk(req.params.id, {
             include: [
-                {
-                    model: User,
-                    attributes: ['name']
-                }
+                { model: User, attributes: ['name'] },
+                { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
             ]
         })
+        
         if (!blogData) {
             return res.status(404).json({ message: 'No blog post found with this id!' })
         }
@@ -73,7 +70,12 @@ router.put('/:id', whenLoggedIn, async (req, res) => {
         }
 
         // returning the updated blog post
-        const updatedBlogPost = await BlogPost.findByPk(req.params.id)
+        const updatedBlogPost = await BlogPost.findByPk(req.params.id, {
+            include: [
+                { model: User, attributes: ['name'] },
+                { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
+            ]
+        } )
 
         console.log(c('blogdata','y'), blogData)
         console.log(c('updatedBlogPost','y'), updatedBlogPost)

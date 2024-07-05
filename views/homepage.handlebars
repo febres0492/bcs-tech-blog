@@ -13,23 +13,11 @@
         </div>
     </div>
     {{#if logged_in}}
-
     
         <div class="row">
             <div class="col">
                 <button class="btn btn-primary" onclick="showPostBlogForm()">Create Blog</button>
 
-                {{!-- <form class="form blog-form p-3">
-                    <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" class="form-control" name="title" placeholder="Enter title" value="Blog Test">
-                    </div>
-                    <div class="form-group">
-                        <label for="content">Content</label>
-                        <textarea class="form-control" name="content" rows="5" >This is a test blog post.</textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" onclick="sendPostBlogReq(event)">Submit</button>
-                </form> --}}
             </div>
         </div>
 
@@ -38,9 +26,7 @@
     <div id="main-content" class="row fg">
         {{!-- this is for dinamic content --}}
     </div>
-    <div id="blogs-container">
-
-    </div>
+    <div id="blogs-container" class="p-3"> </div>
 </section> 
 <script src="/js/homepage.js"></script>
 <script src="/js/utilities.js"></script>

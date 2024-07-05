@@ -1,2 +1,3 @@
+let localBlogsData = { }
 
-
+let localCommentsData = { }

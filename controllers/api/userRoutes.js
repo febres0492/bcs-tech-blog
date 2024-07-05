@@ -68,6 +68,7 @@ router.post('/signup', async (req, res) => {
 
         req.session.save(() => {
             req.session.user_id = userData.id
+            req.session.currUser = userData.get({ plain: true })
             req.session.logged_in = true
 
             res.status(200).json(userData)
@@ -150,7 +151,9 @@ router.put('/updatepassword', async (req, res) => {
 router.get('/current_user', (req, res) => {
     console.log(c('getting the current user','r'))
     if (req.session.logged_in) {
-        res.json(req.session.currUser);
+        const user = req.session.currUser
+        delete user.password
+        res.json(user)
     } else {
         res.status(404).end();
     }

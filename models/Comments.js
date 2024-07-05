@@ -1,9 +1,9 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
-class BlogPost extends Model { }
+class Comment extends Model {}
 
-BlogPost.init(
+Comment.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,32 +11,35 @@ BlogPost.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        title: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        authorId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        authorName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        content: {
+        commentText: {
             type: DataTypes.TEXT,
             allowNull: false,
         },
-        tags: {
-            type: DataTypes.ARRAY(DataTypes.STRING),
-            allowNull: true,
+        commentCreatorId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'user', 
+                key: 'id',
+            },
+        },
+        commentCreatorName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        blogPostId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'blogpost',
+                key: 'id',
+            },
+        },
+        blogPostCreatorId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         createdAt: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
-        },
-        updatedAt: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
@@ -44,11 +47,11 @@ BlogPost.init(
     },
     {
         sequelize,
-        timestamps: true, 
+        timestamps: true,
         freezeTableName: true,
         underscored: true,
-        modelName: 'blogpost',
+        modelName: 'comments',
     }
 );
 
-module.exports = BlogPost;
+module.exports = Comment;
