@@ -18,10 +18,10 @@ Comment.init(
         commentCreatorId: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: 'user', 
-                key: 'id',
-            },
+            // references: {
+            //     model: 'user', 
+            //     key: 'id',
+            // },
         },
         commentCreatorName: {
             type: DataTypes.STRING,
@@ -30,10 +30,10 @@ Comment.init(
         blogPostId: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: 'blogpost',
-                key: 'id',
-            },
+            // references: {
+            //     model: 'blogpost',
+            //     key: 'id',
+            // },
         },
         blogPostCreatorId: {
             type: DataTypes.INTEGER,
