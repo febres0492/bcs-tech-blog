@@ -1,14 +1,21 @@
 function capFirt(str) { return str.charAt(0).toUpperCase() + str.slice(1) }
 
 function showMessageInModal(message) {
-    $('.modal-body').empty();
-    $('.modal-body').html(`
+    S('.modal-body').empty();
+    S('.modal-body').html(`
         <div class="col-12 py-2 jcc">
             <h3>${message}</h3>
         </div>
     `)
-    $('#bs-modal').modal('show'); 
+    S('#bs-modal').modal('show'); 
 }
+
+const  backBtnStr = `
+    <div class="d-flex">
+        <button class="btn btn-sm btn-info" onclick="loadDashboard()"> <<< </button>
+    </div>
+`
+
 
 function updatePassword(e){
     e.preventDefault()
@@ -40,9 +47,9 @@ function updatePassword(e){
 
 function loadPasswordForm(e){
     e.preventDefault()
-    $('.modal-header').empty();
-    $('.modal-body').empty();
-    $('.modal-body').html(`
+    S('.modal-header').empty();
+    S('.modal-body').empty();
+    S('.modal-body').html(`
         <div class="col-12 py-2 jcc">
             <h3>Reset Password</h3>
             <form id="reset-password-form">
@@ -63,32 +70,32 @@ function loadPasswordForm(e){
         </div>
     `)
 
-    $('#bs-modal').modal('show')
+    S('#bs-modal').modal('show')
 
-    $('.submit-btn').on('click', ()=>{
+    S('.submit-btn').on('click', ()=>{
 
-        $('.modal-header').empty();
+        S('.modal-header').empty();
 
         const currentPassword = document.querySelector('#current-password').value
         const newPassword = document.querySelector('#new-password').value
         const repeatNewPassword = document.querySelector('#repeat-new-password').value
     
         if(newPassword!=repeatNewPassword){
-            $('.modal-header').empty();
-            $('.modal-header').html(`<h4 class="modal-title text-warning">New Password and Repeat Password do not match!</h4>`)
+            S('.modal-header').empty();
+            S('.modal-header').html(`<h4 class="modal-title text-warning">New Password and Repeat Password do not match!</h4>`)
             return
         }
 
         $.ajax({
             url: '/api/user/update_password',
-            data: {currentPassword, newPassword, 'email': $('#email').text()},
+            data: {currentPassword, newPassword, 'email': S('#email').text()},
             method: 'PUT'
         }).then((res) => {
             showMessageInModal('Password Updated!')
         }).catch(err => {
             setTimeout(() => {
-                $('.modal-header').empty();
-                $('.modal-header').html(`<h4 class="modal-title text-warning">${err.responseJSON.message}</h4>`)
+                S('.modal-header').empty();
+                S('.modal-header').html(`<h4 class="modal-title text-warning">${err.responseJSON.message}</h4>`)
             }, 1000)
             
         })
@@ -124,8 +131,8 @@ async function login(event) {
 
     event.preventDefault()
 
-    const email = $('#email-login').val().trim()
-    const password = $('#password-login').val().trim()
+    const email = S('#email-login').val().trim()
+    const password = S('#password-login').val().trim()
 
     if(!email || !password){
         showMessageInModal('Please enter email and password')
@@ -139,7 +146,6 @@ async function login(event) {
         data: JSON.stringify({ email, password }),
         success: function(response) {
             // console.log('response:', response)
-            sessionStorage.setItem('currUser', JSON.stringify(response.user));
             window.location.href='/'
         },
         error: function(xhr, status, error) {
@@ -151,15 +157,50 @@ async function login(event) {
 
 function logout() {
 
-    // console.log('logout')
-    sessionStorage.removeItem('currUser');
-
     $.ajax({
         url: 'api/user/logout',
         type: 'POST',
         success: function(response) {
-            // console.log('response:', response)
             window.location.href='/'
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error)
+        }
+    });
+}
+
+async function searchInput(e) {
+    if(e.key != "Enter"){ return }
+    e.preventDefault()
+    showBlogs()
+}
+
+async function searchBtn(e) {
+    console.log('searchBtn')
+    e.preventDefault()
+    showBlogs()
+}
+
+async function showBlogs() {
+    S('#blogs-container').empty()
+    S('#blogs-container').append(`
+        <div class="d-flex jcc aic rel py-3">
+            <div class="abs" style="--left:0;">${backBtnStr}</div>
+            <h2 class="text-center m-0">Search Results</h2>
+        </div>
+    `)
+    const search = document.querySelector('#searchBar').value
+    const res = await sendBlogQuerySearch(search)
+    renderBlogs(res)
+}
+
+function sendBlogQuerySearch(search) {
+    return $.ajax({
+        url: `api/blog/search/${search}`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            return response
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -196,7 +237,7 @@ function addingCommentCardId(comment) {
 
 function getBlogById(blogId) {
     return $.ajax({
-        url: `api/blog/${blogId}`,
+        url: `api/blog/id/${blogId}`,
         type: 'GET',
         success: function(response) {
             // console.log('response:', response)
@@ -210,18 +251,19 @@ function getBlogById(blogId) {
 
 function getPartialBlogCardTemplate(obj){
     const blog = localBlogsData[obj.cardId]
-    const isAuthor = obj.isAuthor || false
-    const objStr = JSON.stringify(obj).replace(/"/g, "'")
+    const objStr = JSON.stringify({cardId:blog.cardId}).replace(/"/g, "'")
 
     return `
-        <div id="${blog.cardId}" class="blog-card border p-3 mb-3">
-            <div class="d-flex jcsb p-2">
-                <h3 class="blog-title m-0">${blog.title}</h3>
-                <p class="m-0">By: ${blog.authorName}</p>
-                <p class="m-0">${new Date(blog.createdAt).toLocaleString()}</p>
-            </div>
-            <div class="d-flex jcsb">
-                <p class="m-0">Comments: ${blog.comments?.length || 0}</p>
+        <div id="${blog.cardId}" class="blog-card bg-l1 rounded p-3 mb-3 pointer ani" style="--hover-scale:1.02;" onclick="loadBlog(${objStr})">
+            <div class="d-flex jcsb" style="--g:2;">
+                <div class="d-flex flex-column" >
+                    <h3 class="blog-title m-0 mr-auto">${blog.title || "No Title"}</h3>
+                    <p class="m-0">Comments: ${blog.comments?.length || 0}</p>
+                </div>
+                <div class="d-flex flex-column">
+                    <p class="m-0">By: ${blog.authorName}</p>
+                    <p class="m-0">${new Date(blog.createdAt).toLocaleString()}</p>
+                </div>
             </div>
         </div>
     `
@@ -230,29 +272,27 @@ function getPartialBlogCardTemplate(obj){
 function getBlogCardTemplate(obj) {
 
     const blog = localBlogsData[obj.cardId]
-    const isAuthor = obj.isAuthor || false
+    // const isAuthor = obj.isAuthor || false
     const objStr = JSON.stringify(obj).replace(/"/g, "'")
 
     return `
-        <div id="${blog.cardId}" class="blog-card border p-3 mb-3">
+        <div id="${blog.cardId}" class="blog-card rounded bg-l1 p-3 mb-3">
             <div class="d-flex jcsb p-2">
-                <h3 class="blog-title m-0">${blog.title}</h3>
                 <p class="m-0">By: ${blog.authorName}</p>
                 <p class="m-0">${new Date(blog.createdAt).toLocaleString()}</p>
             </div>
             <hr>
-            <p class="blog-content">${blog.content}</p>
+            <div class="rounded p-3 bg-l1">
+                <p class="blog-content m-0 pre-wrap">${blog.content}</p>
+            </div>
             <hr>
-            <div class="d-flex jcsb">
+            <div class="d-flex jcsb pb-2">
                 <p class="m-0">Comments: ${blog.comments?.length || 0}</p>
                 <p class="m-0">Last Updated: ${new Date(blog.updatedAt).toLocaleString()}</p>
             </div>
             <div class="comments-container"></div>
-            <div class="d-flex" style="--g:2;">
-                <button class="btn btn-sm btn-info mr-auto" onclick="showCommentForm(${objStr})">Comment</button>
-                ${isAuthor ? `<button class="btn btn-sm btn-primary" onclick="showEditBlogForm(${objStr})">Edit</button>` : ''}
-                ${isAuthor ? `<button class="btn btn-sm btn-danger" onclick="sendDeleteBlogRequest(${objStr})">Delete</button>` : ''}
-            </div>
+            <hr>
+            <button class="btn btn-sm btn-info" onclick="showCommentForm(${objStr})">Comment</button>
         </div>
     `
 }
@@ -263,34 +303,31 @@ function prependBlog(blog) {
     const cardId = `${blog.authorName[0]}${blog.authorId}_${blog.id}`
     blog.cardId = cardId
     localBlogsData[cardId] = blog
-    $('#blogs-container').prepend( getBlogCardTemplate({ cardId, isAuthor: true }) )
+    S('#blogs-container').prepend( getBlogCardTemplate({ cardId, isAuthor: true }) )
 }
 
-async function renderBlogs() {
-    const blogs = [...await getBlogs()].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+async function renderBlogs(blogs) {
     localBlogsData = {}
-    
-    $('#blogs-container').empty();
+    blogs = blogs || [...await getBlogs()]
+    blogs = blogs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
     blogs.forEach(renderPartialBlogCard)
 }
 
-// async function renderBlogs() {
-//     const blogs = [...await getBlogs()].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-//     localBlogsData = {}
-    
-//     $('#blogs-container').empty();
-//     blogs.forEach(renderBlogCard)
-// }
+function S(el){
+    el = $(el)
+    if(el.length == 0){ throw new Error('Element not found') }
+    return el
+}
 
-function getCommentTemplate(comment) {
-    const currUser = JSON.parse(sessionStorage.getItem('currUser')) || {}
+async function getCommentTemplate(comment) {
+    const currUser = await getCurUser()
     const isBlogAuthor = currUser.id == comment.blogPostCreatorId
     const iscomentCreator = currUser.id == comment.commentCreatorId
     const objStr = JSON.stringify({cardId:comment.cardId, iscomentCreator: iscomentCreator}).replace(/"/g, "'")
-    const isValid = !comment.commentText.includes('Deleted by')
-    const isDisabled = !isValid ? 'bg-ac2' : ''
+    const isNotDeleted = !comment.commentText.includes('Deleted by')
+    const isDisabled = !isNotDeleted ? 'bg-ac2' : ''
 
-    return `
+    const str = `
         <div id="${comment.cardId}" class="comment-card p-3 mb-3 rounded bg-d2 ${isDisabled ? 'text-secondary' : ''}">
             <div class="d-flex jcsb">
                 <p class="m-0">By: ${comment.commentCreatorName}</p>
@@ -298,61 +335,71 @@ function getCommentTemplate(comment) {
             </div>
             <p class="comment-text m-0">${comment.commentText}</p>
 
-            ${ isValid && (iscomentCreator || isBlogAuthor) ? 
-                `<div class="dropdown">
+            ${ isNotDeleted && (iscomentCreator || isBlogAuthor) ? 
+                `<div class="dropright dropmenu">
                     <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">Options</button>
-                    <div class="dropdown-content rounded bg-d2" style="--left:0; --top:100%;">
+                    <div class="dropdown-content rounded bg-d2" style="--top:0; --left:100%;">
                         <div class="d-flex flex-column px-2 bg-d2 py-2" style="--g:2;">
                             ${iscomentCreator ? `<button class="btn btn-sm btn-info" onclick="showEditCommentForm(${objStr})">Edit</button>` : ''}
-                            ${(isBlogAuthor || iscomentCreator) ? `<button class="btn btn-sm btn-danger" onclick="sendDeleteCommentRequest(${objStr})">Delete</button>` : ''}
+                            ${(isBlogAuthor || iscomentCreator) ? `<button class="btn btn-sm btn-danger" onclick="showDeleteConfirmation(${objStr})">Delete</button>` : ''}
                         </div>
                     </div>
                 </div>` : ''
             }
         </div>
     `
+    return str
 }
 
 function getCurUser() {
 
-    if (sessionStorage.currUser) {
-        return sessionStorage.currUser
+    if(userData.id != null){
+        return userData
+    } else {
+        return $.ajax({
+            url: 'api/user/current_user',
+            type: 'GET',
+            success: function(response) {
+                userData = response
+                return response
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error)
+            }
+        });
     }
-    return $.ajax({
-        url: 'api/user/current_user',
-        type: 'GET',
-        success: function(response) {
-            // console.log('response:', response)
-            sessionStorage.currUser = response
-            return response
-        },
-        error: function(xhr, status, error) {
-            console.error('Error:', error)
-        }
-    });
+
 }
 
-async function showPostBlogForm() {
-    // console.log('showPostBlogForm')
-    $('.modal-header').html(` <div class="d-flex"> <h3 cl>Create Blog Post</h3> </div> `)
-    $('.modal-body').empty()
-    $('.modal-body').html(`
+async function showPostBlogForm() { //document.querySelector("#bs-modal > div")
+    S('.modal-header').html(` <div class="d-flex"> <h3>Create Blog Post</h3> </div> `)
+    S('.modal-body').empty()
+    S('.modal-body').html(`
         <div class="col-12 py-2">
             <form id="create-blog-form">
                 <div class="form-group tal">
                     <label for="create-blog-form-title">Title</label>
-                    <input type="text" class="form-control" name="title" placeholder="Blog Title" required>
+                    <p class="text-warning title-req float-right"></p>
+                    <input type="text" class="form-control title-input" placeholder="Blog Title" required>
                 </div>
                 <div class="form-group tal">
                     <label for="create-blog-form-content">Content</label>
-                    <textarea class="form-control" name="content" required rows="3" placeholder="Blog Content"></textarea>
+                    <p class="text-warning content-req float-right"></p>
+                    <textarea class="form-control content-input" required rows="10" placeholder="Blog Content"></textarea>
                 </div>
                 <button type="button" class="submit-btn btn btn-sm btn-primary" onclick="sendPostBlogRequest(event)">Submit</button>
             </form>
         </div>
     `)
 
-    $('#bs-modal').modal('show')
+    S('.modal-dialog').css('max-width', 'min(90vw, 800px)')
+
+    S('#bs-modal').modal('show')
+}
+
+async function hideModal() { 
+    S('#bs-modal').modal('hide')
+    setTimeout(() =>  S('.modal-dialog').css('max-width', '500px'), 1000)
 }
 
 async function showEditBlogForm(obj) {
@@ -360,22 +407,23 @@ async function showEditBlogForm(obj) {
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
 
     const blog = localBlogsData[obj.cardId]
-    const title = $(`#${obj.cardId}`).find('.blog-title').text()
-    const content = $(`#${obj.cardId}`).find('.blog-content').text()
+    const content = blog.content
 
     const objStr = JSON.stringify(blog).replace(/"/g, "'")
 
-    $('.modal-header').html(` <div class="d-flex"> <h3 cl>Edit Blog Post</h3> </div> `)
-    $('.modal-body').empty()
-    $('.modal-body').html(`
+    S('.modal-header').html(` <div class="d-flex"> <h3>Edit Blog Post</h3> </div> `)
+    S('.modal-body').empty()
+    S('.modal-body').html(`
         <div class="col-12 py-2">
             <form id="edit-blog-form">
                 <div class="form-group tal">
                     <label for="edit-blog-form-title">Title</label>
-                    <input type="text" class="form-control" id="edit-blog-form-title" value="${title}" required>
+                    <p class="text-warning title-req float-right"></p>
+                    <input type="text" class="form-control" id="edit-blog-form-title" value="${blog.title}" required>
                 </div>
                 <div class="form-group tal">
                     <label for="edit-blog-form-content">Content</label>
+                    <p class="text-warning content-req float-right"></p>
                     <textarea id="edit-blog-form-content" class="form-control" required rows="3">${content}</textarea>
                 </div>
                 <button type="button" class="submit-btn btn btn-sm btn-primary" onclick="sendEditBlogRequest(${objStr})">Submit</button>
@@ -383,33 +431,34 @@ async function showEditBlogForm(obj) {
         </div>
     `)
 
-    $('#bs-modal').modal('show')
+    S('#bs-modal').modal('show')
 }
 
 function showCommentForm(cardId) {
 
     // checking if user is logged in
-    if (!sessionStorage.currUser) {
-        $('.modal-body').empty()
-        $('.modal-body').html(`
+    const currUser = getCurUser()
+    if (!currUser.id) {
+        S('.modal-body').empty()
+        S('.modal-body').html(`
             <div class="col-12 py-2">
                 <h3>Please login to comment</h3>
                 <button class="btn btn-sm btn-primary" onclick="window.location.href='/login'">Login</button>
             </div>
         `)
-        $('#bs-modal').modal('show')
+        S('#bs-modal').modal('show')
         return
     }
 
     const objStr = JSON.stringify(cardId).replace(/"/g, "'")
 
-    $('.modal-header').html(` <div class="d-flex"> <h3 cl>Leave a Comment</h3> </div> `)
-    $('.modal-body').empty()
-    $('.modal-body').html(`
+    S('.modal-header').html(` <div class="d-flex"> <h3>Leave a Comment</h3> </div> `)
+    S('.modal-body').empty()
+    S('.modal-body').html(`
         <div class="col-12 py-2">
             <form id="comment-form">
                 <div class="form-group tal">
-                    <textarea id="comment-form-content" class="form-control" required rows="3" placeholder="Comment"></textarea>
+                    <textarea id="comment-form-content" class="form-control" required rows="6" placeholder="Comment"></textarea>
                 </div>
                 <button type="button" class="submit-btn btn-sm btn btn-primary mb-2" onclick="sendCommentRequest(${objStr})">Submit</button>
                 <p class="m-0 text-secondary">Comments can be deleted by the Blog Post Creator</p>
@@ -417,22 +466,20 @@ function showCommentForm(cardId) {
         </div>
     `)
 
-    $('#bs-modal').modal('show')
-
-    // console.log('data', sessionStorage)
+    S('#bs-modal').modal('show')
 }
 
 function showEditCommentForm(obj) {
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
     console.log('showEditCommentForm:', obj)
 
-    const commentText = $(`#${obj.cardId}`).find('.comment-text').text()
+    const commentText = S(`#${obj.cardId}`).find('.comment-text').text()
 
     const objStr = JSON.stringify({ cardId: obj.cardId }).replace(/"/g, "'")
 
-    $('.modal-header').html(` <div class="d-flex"> <h3 cl>Edit Comment</h3> </div> `)
-    $('.modal-body').empty()
-    $('.modal-body').html(`
+    S('.modal-header').html(` <div class="d-flex"> <h3>Edit Comment</h3> </div> `)
+    S('.modal-body').empty()
+    S('.modal-body').html(`
         <div class="col-12 py-2">
             <form id="edit-comment-form">
                 <div class="form-group tal">
@@ -443,11 +490,11 @@ function showEditCommentForm(obj) {
         </div>
     `)
 
-    $('#bs-modal').modal('show')
+    S('#bs-modal').modal('show')
 }
 
 function updateCommentCard(obj) {
-    $(`#${obj.cardId}`).find('.comment-text').text(obj.commentText)
+    S(`#${obj.cardId}`).find('.comment-text').text(obj.commentText)
 }
 
 function sendResetEmail(e){
@@ -468,23 +515,22 @@ function sendResetEmail(e){
 
 function sendPostBlogRequest(ev) {
     ev.preventDefault()
-    const form = $(ev.target).closest('form')
-    const title = form.find('.form-control[name="title"]').val()
-    const content = form.find('.form-control[name="content"]').val()
+    const form = S(ev.target).closest('form')
+    const title = form.find('.title-input').val()
+    const content = form.find('.content-input').val() 
 
-    // console.log('data', { title, content })
+    if(noInput({title, content})) {return}
 
-    // hiding modal
-    $('#bs-modal').modal('hide')
+    hideModal()
 
     $.ajax({
-        url: 'api/blog',
+        url: 'api/blog/create',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ title, content }),
-        success: function(blog) {
-            // console.log('new blog:', blog)
-            prependBlog(blog)
+        success: function() {
+            S('#blogs-container').empty()
+            renderBlogs()
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -495,16 +541,14 @@ function sendPostBlogRequest(ev) {
 function sendDeleteBlogRequest(obj) {
 
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
-
-    // console.log('sendDeleteBlogReq:', obj)
-    const blog = localBlogsData[obj.cardId]
+        const blog = localBlogsData[obj.cardId]
 
     $.ajax({
-        url: `api/blog/${blog.id}`,
+        url: `api/blog/id/${blog.id}`,
         type: 'DELETE',
         success: function(response) {
-            // console.log('response:', response)
-            $(`#${obj.cardId}`).remove()
+            hideModal()
+            loadDashboard()
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -516,24 +560,26 @@ function sendEditBlogRequest(obj) {
 
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
 
-    // console.log('obj--------', obj)
+    const title = S('#edit-blog-form-title').val()
+    const content = S('#edit-blog-form-content').val()
+
+    if(noInput({title, content})) {return}
 
     const data = {
-        id: obj.id,
-        title: $('#edit-blog-form-title').val(),
-        content: $('#edit-blog-form-content').val()
+        'id': obj.id,
+        title,
+        content
     }
 
     $.ajax({
-        url: `api/blog/${obj.id}`,
+        url: `api/blog/id/${obj.id}`,
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(response) {
-            // console.log('response:', response)
             response.cardId = obj.cardId
             updateBlogCard(response)
-            $('#bs-modal').modal('hide')
+            hideModal()
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -541,17 +587,28 @@ function sendEditBlogRequest(obj) {
     });
 }
 
-function sendCommentRequest(obj) {
+function noInput(obj){
+    let error = false
+    if(obj.title.length == 0){
+        S('.title-req').text('Title is required')
+        error = true
+    }
+    if(obj.content.length == 0){
+        S('.content-req').text('Content is required')
+        error = true
+    }
+    return error
+}
+
+async function sendCommentRequest(obj) {
 
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
     const blog = localBlogsData[obj.cardId]
-    
+
     const data = {
         blogPostId: blog.id,
         blogPostCreatorId: blog.authorId,
-        commentText: $('#comment-form-content').val(),
-        commentCreatorId: JSON.parse(sessionStorage.currUser).id,
-        commentCreatorName: JSON.parse(sessionStorage.currUser).name,
+        commentText: S('#comment-form-content').val(),
     }
 
     console.log('sendCommentReq', obj, blog, data)
@@ -563,7 +620,7 @@ function sendCommentRequest(obj) {
         data: JSON.stringify(data),
         success: function(response) {
             response.cardId = obj.cardId
-            $('#bs-modal').modal('hide')
+            hideModal()
             response.blogCardId = obj.cardId
             addComment(response)
         },
@@ -576,12 +633,16 @@ function sendCommentRequest(obj) {
 async function sendDeleteCommentRequest(obj) {
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
 
-    const user = obj.iscomentCreator ? 'Comment Creator' : 'Blogpost Creator'
-    obj.commentText = `Deleted by ${user}`
+    const blogCardId = obj.cardId.split('_')[0]
+    const blog = localBlogsData[blogCardId]
+    const comment = blog.comments.find(comment => comment.cardId == obj.cardId)
+    const currUser = getCurUser()
+    const isCommentCreator = currUser.id == comment.commentCreatorId
+    const whoIsDeleting = isCommentCreator ? 'Comment Creator' : 'Blogpost Creator'
+    obj.commentText = `Deleted by ${whoIsDeleting}`
 
-    const res = await sendEditCommentRequest(obj)
-
-    $(`#${obj.cardId}`).replaceWith( getCommentTemplate(res) )
+    await sendEditCommentRequest(obj)
+    loadBlog({cardId: blogCardId})
 }
 
 function sendEditCommentRequest(obj) {
@@ -589,7 +650,7 @@ function sendEditCommentRequest(obj) {
 
     const blogCardId = obj.cardId.split('_')[0]
     const comment = localBlogsData[blogCardId].comments.find(comment => comment.cardId == obj.cardId)
-    comment.commentText = obj.commentText || $('#edit-comment-form-content').val()
+    comment.commentText = obj.commentText || S('#edit-comment-form-content').val()
 
     return $.ajax({
         url: `api/comment/${comment.id}`,
@@ -598,8 +659,8 @@ function sendEditCommentRequest(obj) {
         data: JSON.stringify(comment),
         success: function(response) {
             console.log('response:', response)
-            $('#bs-modal').modal('hide')
-            $(`#${obj.cardId}`).find('.comment-text').text(response.commentText)
+            hideModal()
+            S(`#${obj.cardId}`).find('.comment-text').text(response.commentText)
             return response
         },
         error: function(xhr, status, error) {
@@ -611,18 +672,91 @@ function sendEditCommentRequest(obj) {
 function renderPartialBlogCard(blog) {
     blog = addingBlogCardId(blog)
     localBlogsData[blog.cardId] = blog
-    $('#blogs-container').prepend( getPartialBlogCardTemplate({ cardId: blog.cardId }) )
+    S('#blogs-container').append( getPartialBlogCardTemplate({ cardId: blog.cardId }) )
+}
+
+function loadDashboard(){
+    S('#blogs-container').empty()
+    S('#blogs-container').append(`
+        <div class="d-flex jcc aic rel py-3">
+            <h2 class="text-center m-0">Dashboard</h2>
+        </div>
+    `)
+    renderBlogs()
+}
+
+async function loadBlog(obj){
+    obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
+    const blog = localBlogsData[obj.cardId]
+    const currUser = await getCurUser()
+    const isAuthor = currUser.id == blog.authorId
+
+    const objStr = JSON.stringify({cardId: obj.cardId}).replace(/"/g, "'")
+
+    S('#blogs-container').empty()
+    S('#blogs-container').append(`
+        <div class="d-flex jcc aic rel py-3">
+            <div class="abs" style="--left:0;">${backBtnStr}</div>
+            <h2 class="text-center m-0">${blog.title || 'No Title'}</h2>
+            ${isAuthor ? `
+                <div class="abs" style="--right:0;">
+                    <div class="dropdown dropmenu">
+                        <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">
+                            Options
+                        </button>
+                        <div class="dropdown-content rounded bg-ac1" style="--right:0;">
+                            <div class="d-flex flex-column px-2 bg-d2 py-2" style="--g:2;">
+                                <button class="btn btn-sm btn-info" onclick="showEditBlogForm(${objStr})">
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="showDeleteConfirmation(${objStr})">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `)
+    renderBlogCard(blog)
+}
+
+function showDeleteConfirmation(obj) {
+    obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
+    
+    const isComment = obj.cardId.includes('comment')
+    const objStr = JSON.stringify(obj).replace(/"/g, "'")
+    const deleteFunc = isComment ? `sendDeleteCommentRequest(${objStr})` : `sendDeleteBlogRequest(${objStr})`
+
+    S('.modal-header').html(` <div class="d-flex"> <h3>Confirmation</h3> </div> `)
+    S('.modal-body').empty()
+    S('.modal-body').html(`
+        <div class="col-12 py-2 d-flex flex-column jcc">
+            <h3>Delete?</h3>
+            <div class="d-flex" style="--g:3;" >
+                <button type="button" class="btn btn-sm btn-danger fg" 
+                    onclick="${deleteFunc}"
+                    >Yes
+                </button> <button type="button" class="btn btn-sm btn-primary fg" onclick="hideModal()"
+                    >No
+                </button>
+            </div>
+        </div>
+    `)
+
+    S('#bs-modal').modal('show')
 }
 
 function renderBlogCard(blog) {
     
-    const currUser = JSON.parse(sessionStorage.getItem('currUser')) || {}
+    const currUser = getCurUser()
     const isAuthor = currUser.id == blog.authorId
 
     blog = addingBlogCardId(blog)
     localBlogsData[blog.cardId] = blog
 
-    $('#blogs-container').prepend( getBlogCardTemplate({ cardId: blog.cardId, isAuthor }))
+    S('#blogs-container').append( getBlogCardTemplate({ cardId: blog.cardId, isAuthor }))
 
     // sorting comments by date
     blog.comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
@@ -631,16 +765,21 @@ function renderBlogCard(blog) {
 
 function updateBlogCard(blog) {
     localBlogsData[blog.cardId] = blog
-    $(`#${blog.cardId}`).find('.blog-title').text(blog.title)
-    $(`#${blog.cardId}`).find('.blog-content').text(blog.content)
+    S(`#${blog.cardId}`).find('.blog-title').text(blog.title)
+    S(`#${blog.cardId}`).find('.blog-content').html(blog.content)
 }
 
-function addComment(comment) {
+async function addComment(comment) {
     comment = addingCommentCardId(comment)
-    console.log('addComment:', comment.commentText)
 
-    localBlogsData[comment.blogCardId].comments.push(comment)
+    // checking if the comment is already in the localBlogsData
+    const isCommentInLocalData = localBlogsData[comment.blogCardId].comments.some(c => c.id == comment.id)
 
-    const commentHtml = getCommentTemplate(comment)
-    $(`#${comment.blogCardId}`).find('.comments-container').append( commentHtml )
+    if(!isCommentInLocalData){ 
+        localBlogsData[comment.blogCardId].comments.push(comment)
+    }
+
+    const commentHtml = await getCommentTemplate(comment)
+
+    S(`#${comment.blogCardId}`).find('.comments-container').append( commentHtml )
 }

@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { Op } = require('sequelize');
 const { User, BlogPost, Comments } = require('../../models');
 const c = require('../../utils/helpers').c
 const whenLoggedIn = require('../../utils/auth').whenLoggedIn
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
 })
 
 // create a new blog post
-router.post('/', whenLoggedIn, async (req, res) => {
+router.post('/create/', whenLoggedIn, async (req, res) => {
     console.log(c('create a new blog post','r'), req.session.user_id, req.body, )
     try {
         const newBlogPost = await BlogPost.create({
@@ -36,7 +37,7 @@ router.post('/', whenLoggedIn, async (req, res) => {
 });
 
 // get a blog post by id
-router.get('/:id', async (req, res) => {
+router.get('/id/:id', async (req, res) => {
     try {
         const blogData = await BlogPost.findByPk(req.params.id, {
             include: [
@@ -56,7 +57,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // edit a blog post
-router.put('/:id', whenLoggedIn, async (req, res) => {
+router.put('/id/:id', whenLoggedIn, async (req, res) => {
     console.log(c('edit a blog post','r'), req.session.user_id, req.body, req.params)
     try {
         const blogData = await BlogPost.update(req.body, {
@@ -89,7 +90,7 @@ router.put('/:id', whenLoggedIn, async (req, res) => {
 });
 
 // delete a blog post
-router.delete('/:id', whenLoggedIn, async (req, res) => {
+router.delete('/id/:id', whenLoggedIn, async (req, res) => {
     console.log(c('delete a blog post','r'), req.session.user_id, req.params)
     try {
         const blogData = await BlogPost.destroy({
@@ -107,5 +108,29 @@ router.delete('/:id', whenLoggedIn, async (req, res) => {
         res.status(500).json(err)
     }
 });
+
+// search for blog posts
+router.get('/search/:search', async (req, res) => {
+    console.log(c('search for blog posts','r'), req.params)
+    try {
+        const blogData = await BlogPost.findAll({
+            where: {
+                [Op.or]: [
+                    { title: { [Op.iLike]: `%${req.params.search}%` } },
+                    { content: { [Op.iLike]: `%${req.params.search}%` } },
+                ]
+            },
+            include: [
+                { model: User, attributes: ['name'] },
+                { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
+            ]
+        })
+
+        res.status(200).json(blogData)
+    } catch (err) {
+        console.log('Error:', err)
+        res.status(500).json(err)
+    }
+})
 
 module.exports = router;

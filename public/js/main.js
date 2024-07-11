@@ -1,1 +1,3 @@
 let localBlogsData = { }
+let userData = { }
+

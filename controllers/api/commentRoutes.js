@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, Comments, BlogPost } = require('../../models');
+const { Comments } = require('../../models');
 const c = require('../../utils/helpers').c
 const whenLoggedIn = require('../../utils/auth').whenLoggedIn
 
@@ -8,6 +8,9 @@ router.post('/', whenLoggedIn, async (req, res) => {
     console.log(c('comment on a blog post','r'), req.session.user_id, req.body, req.params)
     try {
         console.log(c('req.body','y'), req.body)
+        req.body.commentCreatorId = req.session.user_id
+        req.body.commentCreatorName = req.session.currUser.name
+
         const comment = await Comments.create({ ...req.body })
 
         res.status(200).json(comment)

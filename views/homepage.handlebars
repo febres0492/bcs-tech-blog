@@ -1,32 +1,17 @@
 <section class="container-fluid d-flex flex-column p-0" style="--minh:100vh;">
     <div class="row px-3" style="--pt:15">
-        <div class="col d-flex flex-column flex-sm-row bg-d2 rounded aic p-2 px-3">
-            <form class="form search-form d-flex ais p-0 my-2" style="--g:0;">
-                <div class="rel p-0 fg ">
-                    <input id="searchBar" class="w-100" type="text" name="search" placeholder="Search for blogs" autocomplete="off" onkeydown="searchInput(event)" >
-                    <div id="prev-search-dropdown" class="abs d-flex flex-column">
-                        {{!-- the previous searched items go here --}}
-                    </div>
-                </div>
+        <div class="col d-flex bg-d2 rounded aic jcsb p-2 px-3">
+            <form class="form search-form d-flex ais p-0 m-0" style="--g:0;">
+                <input id="searchBar" class="w-100" type="text" name="search" placeholder="Search Blogs" autocomplete="off" onkeydown="searchInput(event)" >
                 <button class="btn btn-sm btn-primary rounded" type="button" id="search-button" onclick="searchBtn(event)">search</button>
             </form>
+            <button class="btn btn-sm btn-primary" onclick="showPostBlogForm()">Create Blog</button>
         </div>
     </div>
-    {{#if logged_in}}
-    
-        <div class="row">
-            <div class="col">
-                <button class="btn btn-primary" onclick="showPostBlogForm()">Create Blog</button>
 
-            </div>
-        </div>
-
-    {{/if}}
-
-    <div id="main-content" class="row fg">
-        {{!-- this is for dinamic content --}}
+    <div id="main-content" class="row fg pt-3">
+        <div id="blogs-container" class="col-12"></div>
     </div>
-    <div id="blogs-container" class="p-3"> </div>
 </section> 
 <script src="/js/homepage.js"></script>
 <script src="/js/utilities.js"></script>

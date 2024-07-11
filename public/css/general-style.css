@@ -168,11 +168,11 @@ p, span, a, button, li {font-size:calc( 1rem + min(var(--max-fvw), calc(var(--fv
 [style*=--y\:] { transform: translateY(var(--y)) }
 [style*=--z\:] { z-index: var(--z); }
 [style*=--pos\:] { position: var(--pos) }
-[style*=--top\:] { top: var(--top) }
-[style*=--bottom\:] { bottom: var(--bottom) }
-[style*=--left\:] { left: var(--left) }
-[style*=--right\:] { right: var(--right) }
-[style*=--op\:] { opacity: var(--op) }
+[style*=--top\:] { top: var(--top) !important}
+[style*=--bottom\:] { bottom: var(--bottom) !important}
+[style*=--left\:] { left: var(--left) !important}
+[style*=--right\:] { right: var(--right) !important }
+[style*=--op\:] { opacity: var(--op) !important}
 
 [style*=--w\:] { width: var(--w) }
 [style*=--minw\:] { min-width: var(--minw) }

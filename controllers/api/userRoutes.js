@@ -153,9 +153,9 @@ router.get('/current_user', (req, res) => {
     if (req.session.logged_in) {
         const user = req.session.currUser
         delete user.password
-        res.json(user)
+        res.status(200).json(user)
     } else {
-        res.status(404).end();
+        res.status(200).json({ id: null, name: null, email: null })
     }
 })
 

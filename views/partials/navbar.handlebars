@@ -12,15 +12,11 @@
             </button>
         {{/unless}}
 
-        <button id="homeBtn" class="btn btn-sm text-white bg-d1" onclick="window.location.href='/'" type="button">
-            Home
-        </button>
-
         {{#if logged_in}}
-            <div class="dropdown">
+            <div class="dropdown dropmenu">
                 <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">{{currUser.name}}</button>
-                <div class="dropdown-content rounded bg-ac1">
-                    <div class="d-flex flex-column px-2 bg-d2 py-2">
+                <div class="dropdown-content rounded bg-ac1" style="--right:0;">
+                    <div class="d-flex flex-column px-2 bg-d2 py-2" >
                         <button class="btn btn-sm mb-1 border" id="account-settings" onclick="window.location.href='/user_settings'" type="button">
                             Account
                         </button>
