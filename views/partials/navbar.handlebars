@@ -1,32 +1,44 @@
-<nav class="df jcsb aic px-3 py-2 bg-d2 rounded">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-sm navbar-dark aic bg-d2">
     <h4 class="m-0">Bcs Tech Blog</h4>
-    <div>
-        <button class="btn btn-sm text-white bg-d1" onclick="window.location.href='/'" type="button">
-            Dashboard
-        </button>
-    </div>
-    <div>
-        {{#unless logged_in}}
-            <button class="btn btn-sm border"  onclick="window.location.href='/login'" type="button">
-                Login
-            </button>
-        {{/unless}}
-
-        {{#if logged_in}}
-            <div class="dropdown dropmenu">
-                <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">{{currUser.name}}</button>
-                <div class="dropdown-content rounded bg-ac1" style="--right:0;">
-                    <div class="d-flex flex-column px-2 bg-d2 py-2" >
-                        <button class="btn btn-sm mb-1 border" id="account-settings" onclick="window.location.href='/user_settings'" type="button">
-                            Account
-                        </button>
-                        <button class="btn btn-sm mb-1 border" id="logout" onclick="logout(event)">
-                            Logout
-                        </button>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse py-2 p-sm-0" id="navbarNav">
+        <ul class="navbar-nav ml-auto df flex-row jcc bg-l1 p-1 rounded">
+            <li class="nav-item active">
+                <button class="btn btn-sm bg-d2" onclick="window.location.href='/'" type="button">
+                    Home Page
+                </button>
+            </li>
+            <li class="nav-item active">
+                <button class="btn btn-sm bg-d2" onclick="loadDashboard()" type="button">
+                    Dashboard
+                </button>
+            </li>
+            {{#if logged_in}}
+                <div class="dropdown dropmenu">
+                    <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">{{currUser.name}}</button>
+                    <div class="dropdown-content pt-2" style="--top:100%; --right:0%; --bg-c:transparent;">
+                        <div class="d-flex flex-column px-2 py-2 bg-ac1" style="--g:2; ">
+                            <button class="btn btn-sm bg-d2" id="account-settings" onclick="loadSettingsPage()" type="button">
+                                Account
+                            </button>
+                            <button class="btn btn-sm bg-d2" id="logout" onclick="logout(event)">
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {{/if}}
-        
+            {{/if}}
+            {{#unless logged_in}}
+                <li class="nav-item">
+                    <button class="btn btn-sm bg-d2"  onclick="window.location.href='/login'" type="button">
+                        Login
+                    </button>
+                </li>
+            {{/unless}}
+
+        </ul>
     </div>
 </nav>

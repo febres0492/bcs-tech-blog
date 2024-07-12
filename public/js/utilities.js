@@ -127,12 +127,15 @@ function queryDB(password, query) {
 
 async function login(event) {
 
-    // console.log('login')
+    // if target is input tag
+    if(event.target?.tagName == 'INPUT' && event.key != 'Enter'){ return }
 
     event.preventDefault()
 
     const email = S('#email-login').val().trim()
     const password = S('#password-login').val().trim()
+
+    console.log('email  password:', email, password)
 
     if(!email || !password){
         showMessageInModal('Please enter email and password')
@@ -145,12 +148,10 @@ async function login(event) {
         contentType: 'application/json',
         data: JSON.stringify({ email, password }),
         success: function(response) {
-            // console.log('response:', response)
             window.location.href='/'
         },
         error: function(xhr, status, error) {
-            console.error('Error:', error)
-            showMessageInModal(error.responseJSON.message)
+            showMessageInModal(xhr.responseJSON.message)
         }
     })
 }
@@ -169,19 +170,15 @@ function logout() {
     });
 }
 
-async function searchInput(e) {
-    if(e.key != "Enter"){ return }
-    e.preventDefault()
-    showBlogs()
-}
+async function searchInput(ev) {
 
-async function searchBtn(e) {
-    console.log('searchBtn')
-    e.preventDefault()
-    showBlogs()
-}
+    // if target is input tag
+    if(ev.target?.tagName == 'INPUT' && ev.key != 'Enter'){ 
+        return 
+    }
 
-async function showBlogs() {
+    ev.preventDefault()
+
     S('#blogs-container').empty()
     S('#blogs-container').append(`
         <div class="d-flex jcc aic rel py-3">
@@ -208,16 +205,34 @@ function sendBlogQuerySearch(search) {
     });
 }
 
-function getBlogs() {
+function getBlogs(obj) {
+    obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
+    
     return $.ajax({
         url: 'api/blog',
         type: 'GET',
+        data: obj,
+        success: function(blogs) {
+            blogs = [...blogs]
+            blogs = blogs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            return blogs
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', xhr)
+        }
+    });
+}
+
+function getUserBlogs () {
+    return $.ajax({
+        url: 'api/blog',
+        type: 'GET',
+        data: { getUserBlogs: true,  },
         success: function(response) {
-            // console.log('response:', response)
             return response
         },
         error: function(xhr, status, error) {
-            console.error('Error:', error)
+            console.error('Error:', xhr)
         }
     });
 }
@@ -255,7 +270,7 @@ function getPartialBlogCardTemplate(obj){
 
     return `
         <div id="${blog.cardId}" class="blog-card bg-l1 rounded p-3 mb-3 pointer ani" style="--hover-scale:1.02;" onclick="loadBlog(${objStr})">
-            <div class="d-flex jcsb" style="--g:2;">
+            <div class="d-flex flex-column flex-sm-row jcsb" style="--g:2;">
                 <div class="d-flex flex-column" >
                     <h3 class="blog-title m-0 mr-auto">${blog.title || "No Title"}</h3>
                     <p class="m-0">Comments: ${blog.comments?.length || 0}</p>
@@ -299,7 +314,6 @@ function getBlogCardTemplate(obj) {
 
 function prependBlog(blog) {
 
-    // console.log('prependBlog ------------- :', blog)
     const cardId = `${blog.authorName[0]}${blog.authorId}_${blog.id}`
     blog.cardId = cardId
     localBlogsData[cardId] = blog
@@ -308,8 +322,17 @@ function prependBlog(blog) {
 
 async function renderBlogs(blogs) {
     localBlogsData = {}
-    blogs = blogs || [...await getBlogs()]
-    blogs = blogs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    blogs = blogs || await getBlogs()
+    // blogs = blogs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    
+    if(blogs.length == 0){
+        S('#blogs-container').append(`
+            <div class="d-flex jcc aic rel py-3">
+                <h2 class="text-center m-0">No Blogs Found</h2>
+            </div>
+        `)
+        return
+    }
     blogs.forEach(renderPartialBlogCard)
 }
 
@@ -371,7 +394,10 @@ function getCurUser() {
 
 }
 
-async function showPostBlogForm() { //document.querySelector("#bs-modal > div")
+async function showPostBlogForm() { 
+
+    if(loginRequired()){ return }
+
     S('.modal-header').html(` <div class="d-flex"> <h3>Create Blog Post</h3> </div> `)
     S('.modal-body').empty()
     S('.modal-body').html(`
@@ -424,31 +450,41 @@ async function showEditBlogForm(obj) {
                 <div class="form-group tal">
                     <label for="edit-blog-form-content">Content</label>
                     <p class="text-warning content-req float-right"></p>
-                    <textarea id="edit-blog-form-content" class="form-control" required rows="3">${content}</textarea>
+                    <textarea id="edit-blog-form-content" class="form-control" required rows="20">${content}</textarea>
                 </div>
                 <button type="button" class="submit-btn btn btn-sm btn-primary" onclick="sendEditBlogRequest(${objStr})">Submit</button>
             </form>
         </div>
     `)
 
+    S('.modal-dialog').css('max-width', 'min(90vw, 1000px)')
+
     S('#bs-modal').modal('show')
 }
 
-function showCommentForm(cardId) {
-
+// create a function to let the user know that they have to login to comment
+function loginRequired() {
     // checking if user is logged in
     const currUser = getCurUser()
     if (!currUser.id) {
         S('.modal-body').empty()
         S('.modal-body').html(`
             <div class="col-12 py-2">
-                <h3>Please login to comment</h3>
+                <h3>Please</h3>
                 <button class="btn btn-sm btn-primary" onclick="window.location.href='/login'">Login</button>
+                <h3>or</h3>
+                <button class="btn btn-sm btn-primary" onclick="window.location.href='/signup'">Create Account</button>
             </div>
         `)
         S('#bs-modal').modal('show')
-        return
+        return true
     }
+     return false
+}
+
+function showCommentForm(cardId) {
+
+    if(loginRequired()){ return }
 
     const objStr = JSON.stringify(cardId).replace(/"/g, "'")
 
@@ -675,14 +711,33 @@ function renderPartialBlogCard(blog) {
     S('#blogs-container').append( getPartialBlogCardTemplate({ cardId: blog.cardId }) )
 }
 
-function loadDashboard(){
+function loadAllBlogs() {
+    S('#searchBar').val('')
     S('#blogs-container').empty()
     S('#blogs-container').append(`
-        <div class="d-flex jcc aic rel py-3">
-            <h2 class="text-center m-0">Dashboard</h2>
+        <div class="d-flex jcsb aic rel py-3">
+            <h2 class="text-center m-0">All Blogs</h2>
+            <button class="btn btn-sm btn-primary" onclick="showPostBlogForm()">Create Blog</button>
         </div>
     `)
     renderBlogs()
+}
+
+async function loadDashboard(){
+
+    if(loginRequired()){ return }
+
+    S('#searchBar').val('')
+    S('#blogs-container').empty()
+    S('#blogs-container').append(`
+        <div class="d-flex jcsb aic rel py-3">
+            <h2 class="text-center m-0">Dashboard</h2>
+            <button class="btn btn-sm btn-primary" onclick="showPostBlogForm()">Create Blog</button>
+        </div>
+    `)
+
+    const userBlogs = await getBlogs({ getUserBlogs: true })
+    renderBlogs(userBlogs)
 }
 
 async function loadBlog(obj){
@@ -782,4 +837,9 @@ async function addComment(comment) {
     const commentHtml = await getCommentTemplate(comment)
 
     S(`#${comment.blogCardId}`).find('.comments-container').append( commentHtml )
+}
+
+function loadSettingsPage(){
+    if(loginRequired()){ return }
+    window.location.href='/user_settings'
 }

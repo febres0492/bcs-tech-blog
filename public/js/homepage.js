@@ -1,3 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    loadDashboard();
+    getCurUser()
+    loadAllBlogs()
 });

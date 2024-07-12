@@ -1,15 +1,14 @@
 <section class="container-fluid d-flex flex-column p-0" style="--minh:100vh;">
-    <div class="row px-3" style="--pt:15">
-        <div class="col d-flex bg-d2 rounded aic jcsb p-2 px-3">
+    <div class="row px-3" >
+        <div class="col df bg-d2 rounded aic jcsb p-2 px-3">
             <form class="form search-form d-flex ais p-0 m-0" style="--g:0;">
                 <input id="searchBar" class="w-100" type="text" name="search" placeholder="Search Blogs" autocomplete="off" onkeydown="searchInput(event)" >
-                <button class="btn btn-sm btn-primary rounded" type="button" id="search-button" onclick="searchBtn(event)">search</button>
+                <button class="btn btn-sm btn-primary rounded" type="button" id="search-button" onclick="searchInput(event)">search</button>
             </form>
-            <button class="btn btn-sm btn-primary" onclick="showPostBlogForm()">Create Blog</button>
         </div>
     </div>
 
-    <div id="main-content" class="row fg pt-3">
+    <div id="main-content" class="row fg pt-3" style="--mb:15;">
         <div id="blogs-container" class="col-12"></div>
     </div>
 </section> 

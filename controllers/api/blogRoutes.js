@@ -7,6 +7,20 @@ const whenLoggedIn = require('../../utils/auth').whenLoggedIn
 // get all blog posts
 router.get('/', async (req, res) => {
     try {
+
+        const getUserBlogs = req.query.getUserBlogs === 'true';
+
+        if (getUserBlogs && req.session.logged_in) {
+            const blogData = await BlogPost.findAll({
+                where: { authorId: req.session.user_id },
+                include: [
+                    { model: User, attributes: ['name'] },
+                    { model: Comments, attributes: [ 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'commentText', 'id', 'createdAt', 'updatedAt'], }
+                ]
+            });
+            return res.status(200).json(blogData);
+        }
+
         const blogData = await BlogPost.findAll({
             include: [
                 { model: User, attributes: ['name'] },

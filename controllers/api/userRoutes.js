@@ -10,13 +10,13 @@ router.post('/login', async (req, res) => {
     try {
         const userData = await User.findOne({ where: { email: req.body.email } });
         if (userData == null) {
-            return res.status(400).json({ message: 'Email not found. <br>Please verify the email.' });
+            return res.status(401).json({ message: 'Email not found. <br>Please verify the email.' });
         }
 
         const validPassword = userData.checkPassword(req.body.password);
         console.log(c('validPassword'), validPassword)
         if (!validPassword) {
-            return res.status(400).json({ message: 'Incorrect email or password, please try again' });
+            return res.status(401).json({ message: 'Incorrect email or password, please try again' });
         }
 
         const currUser = userData.get({ plain: true })
@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
 
     } catch (err) {
         console.log(c('err','r'), err)
-        res.status(400).json(err);
+        res.status(500).json({ message: 'An error occurred during login, please try again.' });
     }
 })
 

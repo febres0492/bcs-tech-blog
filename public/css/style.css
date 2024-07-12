@@ -1,7 +1,8 @@
 :root {
-    --accent-color-1: hsl(258, 58%, 42%);
+    --accent-color-1: hsl(238, 51%, 45%);
     --accent-color-2: hsl(266, 61%, 11%);
-    --accent-color-3: hsl(258, 58%, 21%);
+    --accent-color-3: hsl(238, 39%, 44%);
+    
     --l1: hsl(0, 0%, 100%, 0.1);
     --l2: hsl(0, 0%, 100%, 0.2);
     --d1: hsl(0, 0%, 0%, 0.1);
@@ -22,7 +23,9 @@ body {
     font-size: 1.2rem;
     line-height: 1.6;
     min-height: 100vh;
-    margin: 0;
+    max-width: 1200px;
+    position: relative;
+    margin: auto;
     padding: 0;
 }
 
@@ -32,6 +35,7 @@ body {
 }
 .bg-ac1 { background-color: var(--accent-color-1) !important; }
 .bg-ac2 { background-color: var(--accent-color-2) !important; }
+.bg-ac3 { background-color: var(--accent-color-3) !important; }
 
 .bg-l1 { background-color: var(--l1) !important; }
 .bg-l2{ background-color: var(--l2) !important; }
@@ -40,15 +44,6 @@ body {
 
 .text-white{
     button { color: white; }
-}
-
-.carousel-control-prev {
-    width: 30px;
-    left: 0; 
-}
-.carousel-control-next {
-    width: 30px;
-    right: 0; 
 }
 
 .dropbtn {
@@ -74,116 +69,11 @@ body {
     display: block;
 }
 
-.hidden {
-    display: none;
-}
-
-.divider{
-    display: inline-block;
-    height: 80%;
-}
-
-.horizontal-divider {
-    display: inline-block;
-    width: 100%;
-    height: 5px;
-    background-color: var(--l2);
-    border-radius: 5px;
-}
-
-.card{
-    background-color: transparent !important;
-    border: none !important;
-}
-.card-item{
-    display: flex;
-    flex-direction: column;
-    border-radius: .4rem;
-    overflow: hidden;
-    padding: 1rem;
-    background-color: var(--d2) !important;
-    gap: 1rem;
-    h1,h2,h3,h4,h5,h6 {
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis; 
-    }
-    img{
-        width: 100%;
-        aspect-ratio: 1/1.3;
-        object-fit: cover;
-    }
-    .info-icon {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 12%;
-        background-color: var(--d2);
-        aspect-ratio: 1;
-        border: 1px solid var(--l2);
-        border-radius: 15%;
-    }
-}
-
-.ellipsis {
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-}
-
-#prev-search-dropdown {
-    position: absolute;
-    gap: .2em;
-    background-color: var(--accent-color-3);
-    top: 100%;
-    left: 0;
-    right: 0;
-    border: 1px solid var(--l2);
-    border-top: none;
-    border-radius: 0 0 .4rem .4rem;
-    z-index: 1;
-    max-height: 20rem;
-    overflow-y: auto;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    opacity: 0;
-    transition: .5s ease;
-    background-color: transparent;
-    z-index: 1; 
-    overflow-y: hidden;
-
-    p{
-        --fvw: .2;
-    }
-}
+.hidden { display: none; }
 
 .scroll-bar {
     scrollbar-width: thin;
     scrollbar-color: var(--primary) var(--accent-color-2);
-}
-
-.description-box:hover .overlay {
-    opacity: 1;
-    background-color: var(--color-2);
-    overflow-y: scroll;
-}
-
-.text {
-    color: white;
-    text-align: center;
-    padding: 10px;
-    z-index: 2;
-}
-
-@media (min-width: 400px) and (max-width: 575px) {
-    .card {
-        max-width: calc((100% / 12) * 6);
-    }
 }
 
 .btn:hover {
