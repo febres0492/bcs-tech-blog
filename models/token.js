@@ -20,11 +20,7 @@ Token.init({
         type: DataTypes.STRING,
         allowNull:false,
         unique:true,
-    },
-    // expiration: {
-    //     type: DataTypes.DATE,
-    //     allowNull:false
-    // }
+    }
 },
 {
     sequelize,

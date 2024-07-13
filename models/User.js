@@ -35,20 +35,6 @@ User.init(
                 len: { args:[8],
                     msg:"Password must be at least 8 characters long"
                 },
-                // customsecurecheck(value) {
-                //     if (!/[A-Z]/.test(value)) {
-                //       throw new Error('Password must contain at least one uppercase letter');
-                //     }
-                //     if (!/[a-z]/.test(value)) {
-                //       throw new Error('Password must contain at least one lowercase letter');
-                //     }
-                //     if (!/[^A-Za-z0-9]/.test(value)) {
-                //       throw new Error('Password must contain at least one special character');
-                //     }
-                //     if (!/[0-9]/.test(value)) {
-                //         throw new Error('Password must contain at least one number');
-                //       }
-                //   },
             },
         },
     },
