@@ -1,7 +1,7 @@
-const User = require('./User')
-const Token = require('./Token')
-const BlogPost = require('./BlogPost')
-const Comments = require('./Comments')
+const User = require('./user')
+const Token = require('./token')
+const BlogPost = require('./blogpost')
+const Comments = require('./comments')
 
 // User-Token relationship
 User.hasOne(Token, { foreignKey: 'email', onDelete: 'CASCADE' })
