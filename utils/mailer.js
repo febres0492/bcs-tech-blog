@@ -13,7 +13,7 @@ async function sendToken(user, token) {
         },
     });
     const mailOptions = {
-        from: `Favorite Vault <${process.env.EMAIL_USER}>`,
+        from: `Bcs Tech Blog <${process.env.EMAIL_USER}>`,
         to: user,
         subject: 'Password Reset',
         text: `Please use the following token to reset your password: ${token}`,

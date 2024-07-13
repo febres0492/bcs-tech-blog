@@ -12,10 +12,9 @@ function showMessageInModal(message) {
 
 const  backBtnStr = `
     <div class="d-flex">
-        <button class="btn btn-sm btn-info" onclick="loadDashboard()"> <<< </button>
+        <button class="btn btn-sm btn-info" onclick="window.location.href='/'"> <<< Home</button>
     </div>
 `
-
 
 function updatePassword(e){
     e.preventDefault()
@@ -731,7 +730,7 @@ async function loadDashboard(){
     S('#blogs-container').empty()
     S('#blogs-container').append(`
         <div class="d-flex jcsb aic rel py-3">
-            <h2 class="text-center m-0">Dashboard</h2>
+            <h2 class="text-center m-0">My Blogs</h2>
             <button class="btn btn-sm btn-primary" onclick="showPostBlogForm()">Create Blog</button>
         </div>
     `)

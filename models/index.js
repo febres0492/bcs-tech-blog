@@ -1,4 +1,4 @@
-const User = require('./user')
+const User = require('./User')
 const Token = require('./Token')
 const BlogPost = require('./BlogPost')
 const Comments = require('./Comments')
