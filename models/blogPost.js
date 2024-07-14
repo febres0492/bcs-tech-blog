@@ -47,7 +47,7 @@ BlogPost.init(
         timestamps: true, 
         freezeTableName: true,
         underscored: true,
-        modelName: 'blogpost',
+        modelName: 'blog_post',
     }
 );
 

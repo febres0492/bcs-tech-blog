@@ -33,14 +33,14 @@ function updatePassword(e){
     }
 
     $.ajax({
-        url: '/api/updatepassword',
+        url: '/api/user/updatepassword',
         data: {email, token, newPassword},
         method: 'PUT'
     }).then((res) => {
         window.location.replace('/')
     }).catch(err => {
+        console.log(err)
         showMessageInModal(err.responseJSON.message)
-        // console.log(err)
     })
 }
 
@@ -116,7 +116,7 @@ function queryDB(password, query) {
         contentType: 'application/json',
         data: JSON.stringify({ password, query }),
         success: function(response) {
-            // console.log('response:', response.message, response.results)
+            console.log('response:', response.message, response.results)
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -238,7 +238,7 @@ function getUserBlogs () {
 
 function addingBlogCardId(blog) {
     blog.cardId = `blog-${blog.authorName[0]}${blog.authorId}-${blog.id}`
-    blog.comments = blog.comments?.map(comment => {
+    blog.blog_comments = blog.blog_comments?.map(comment => {
         return {...comment, blogCardId: blog.cardId}
     }) || []
     return blog
@@ -272,7 +272,7 @@ function getPartialBlogCardTemplate(obj){
             <div class="d-flex flex-column flex-sm-row jcsb" style="--g:2;">
                 <div class="d-flex flex-column" >
                     <h3 class="blog-title m-0 mr-auto">${blog.title || "No Title"}</h3>
-                    <p class="m-0">Comments: ${blog.comments?.length || 0}</p>
+                    <p class="m-0">Comments: ${blog.blog_comments?.length || 0}</p>
                 </div>
                 <div class="d-flex flex-column">
                     <p class="m-0">By: ${blog.authorName}</p>
@@ -301,7 +301,7 @@ function getBlogCardTemplate(obj) {
             </div>
             <hr>
             <div class="d-flex jcsb pb-2">
-                <p class="m-0">Comments: ${blog.comments?.length || 0}</p>
+                <p class="m-0">Comments: ${blog.blog_comments?.length || 0}</p>
                 <p class="m-0">Last Updated: ${new Date(blog.updatedAt).toLocaleString()}</p>
             </div>
             <div class="comments-container"></div>
@@ -342,6 +342,7 @@ function S(el){
 }
 
 async function getCommentTemplate(comment) {
+
     const currUser = await getCurUser()
     const isBlogAuthor = currUser.id == comment.blogPostCreatorId
     const iscomentCreator = currUser.id == comment.commentCreatorId
@@ -355,7 +356,7 @@ async function getCommentTemplate(comment) {
                 <p class="m-0">By: ${comment.commentCreatorName}</p>
                 <p class="m-0">${new Date(comment.createdAt).toLocaleString()}</p>
             </div>
-            <p class="comment-text m-0">${comment.commentText}</p>
+            <p class="comment-text m-0 pre-wrap">${comment.commentText}</p>
 
             ${ isNotDeleted && (iscomentCreator || isBlogAuthor) ? 
                 `<div class="dropright dropmenu">
@@ -383,6 +384,7 @@ function getCurUser() {
             type: 'GET',
             success: function(response) {
                 userData = response
+                $('.account-btn').text(response.name)
                 return response
             },
             error: function(xhr, status, error) {
@@ -536,14 +538,14 @@ function sendResetEmail(e){
     e.preventDefault()
     const email = document.querySelector('#email-login').value
     $.ajax({
-        url: 'api/token/email_token',
+        url: 'api/valtoken/email_token',
         data: { email: email},
         method: 'POST'
     }).then((res) => {
         // console.log(res)
         window.location.replace('/passwordresetform')
     }).catch(err => {
-        // console.log(err)
+        console.log(err)
         showMessageInModal(err.responseJSON.message)
     })
 }
@@ -670,7 +672,7 @@ async function sendDeleteCommentRequest(obj) {
 
     const blogCardId = obj.cardId.split('_')[0]
     const blog = localBlogsData[blogCardId]
-    const comment = blog.comments.find(comment => comment.cardId == obj.cardId)
+    const comment = blog.blog_comments.find(comment => comment.cardId == obj.cardId)
     const currUser = getCurUser()
     const isCommentCreator = currUser.id == comment.commentCreatorId
     const whoIsDeleting = isCommentCreator ? 'Comment Creator' : 'Blogpost Creator'
@@ -684,7 +686,7 @@ function sendEditCommentRequest(obj) {
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
 
     const blogCardId = obj.cardId.split('_')[0]
-    const comment = localBlogsData[blogCardId].comments.find(comment => comment.cardId == obj.cardId)
+    const comment = localBlogsData[blogCardId].blog_comments.find(comment => comment.cardId == obj.cardId)
     comment.commentText = obj.commentText || S('#edit-comment-form-content').val()
 
     return $.ajax({
@@ -751,7 +753,7 @@ async function loadBlog(obj){
     S('#blogs-container').append(`
         <div class="d-flex jcc aic rel py-3">
             <div class="abs" style="--left:0;">${backBtnStr}</div>
-            <h2 class="text-center m-0">${blog.title || 'No Title'}</h2>
+            <h2 class="text-center m-0 blog-title">${blog.title || 'No Title'}</h2>
             ${isAuthor ? `
                 <div class="abs" style="--right:0;">
                     <div class="dropdown dropmenu">
@@ -813,13 +815,14 @@ function renderBlogCard(blog) {
     S('#blogs-container').append( getBlogCardTemplate({ cardId: blog.cardId, isAuthor }))
 
     // sorting comments by date
-    blog.comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-    blog.comments.forEach(addComment)
+    blog.blog_comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    blog.blog_comments.forEach(addComment)
 }
 
 function updateBlogCard(blog) {
+    console.log('updateBlogCard:', blog)
     localBlogsData[blog.cardId] = blog
-    S(`#${blog.cardId}`).find('.blog-title').text(blog.title)
+    S('.blog-title').text(blog.title)
     S(`#${blog.cardId}`).find('.blog-content').html(blog.content)
 }
 
@@ -827,10 +830,10 @@ async function addComment(comment) {
     comment = addingCommentCardId(comment)
 
     // checking if the comment is already in the localBlogsData
-    const isCommentInLocalData = localBlogsData[comment.blogCardId].comments.some(c => c.id == comment.id)
+    const isCommentInLocalData = localBlogsData[comment.blogCardId].blog_comments.some(c => c.id == comment.id)
 
     if(!isCommentInLocalData){ 
-        localBlogsData[comment.blogCardId].comments.push(comment)
+        localBlogsData[comment.blogCardId].blog_comments.push(comment)
     }
 
     const commentHtml = await getCommentTemplate(comment)

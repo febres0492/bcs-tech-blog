@@ -18,11 +18,11 @@
             </li>
             {{#if logged_in}}
                 <div class="dropdown dropmenu">
-                    <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">{{currUser.name}}</button>
+                    <button class="account-btn btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">Account</button>
                     <div class="dropdown-content pt-2" style="--top:100%; --right:0%; --bg-c:transparent;">
                         <div class="d-flex flex-column px-2 py-2 bg-ac1" style="--g:2; ">
                             <button class="btn btn-sm bg-d2" id="account-settings" onclick="loadSettingsPage()" type="button">
-                                Account
+                                Settings
                             </button>
                             <button class="btn btn-sm bg-d2" id="logout" onclick="logout(event)">
                                 Logout

@@ -25,7 +25,8 @@ router.post('/email_token', async (req, res) => {
         //Redirecting to the password reset form
 
     } catch (err) {
-        res.status(400).json(err)
+
+        res.status(400).json({message:"Error sending the validation code", error:err})
     }
 })
 

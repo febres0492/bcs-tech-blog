@@ -9,6 +9,7 @@ const routeFiles = fs.readdirSync(__dirname).filter(file => file.endsWith('Route
 routeFiles.forEach(file => {
     const route = require(path.join(__dirname, file))
     const routeName = `/${path.basename(file, '.js').replace('Routes', '').toLowerCase()}`
+    console.log('routeName:', routeName)
     router.use(routeName, route)
 });
 

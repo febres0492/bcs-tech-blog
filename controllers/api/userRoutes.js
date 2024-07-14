@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User } = require('../../models');
+const { User, Token } = require('../../models');
 const c = require('../../utils/helpers').c
 const bcrypt = require('bcrypt')
 const sequelize = require('../../config/connection')
@@ -152,7 +152,7 @@ router.get('/current_user', (req, res) => {
     console.log(c('getting the current user','r'))
     if (req.session.logged_in) {
         const user = req.session.currUser
-        delete user.password
+        if(user && user.password) {delete user.password}
         res.status(200).json(user)
     } else {
         res.status(200).json({ id: null, name: null, email: null })
