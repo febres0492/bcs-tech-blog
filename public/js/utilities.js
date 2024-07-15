@@ -272,7 +272,7 @@ function getPartialBlogCardTemplate(obj){
             <div class="d-flex flex-column flex-sm-row jcsb" style="--g:2;">
                 <div class="d-flex flex-column" >
                     <h3 class="blog-title m-0 mr-auto">${blog.title || "No Title"}</h3>
-                    <p class="m-0">Comments: ${blog.blog_comments?.length || 0}</p>
+                    <p class="comments-count m-0">Comments: ${blog.blog_comments?.length || 0}</p>
                 </div>
                 <div class="d-flex flex-column">
                     <p class="m-0">By: ${blog.authorName}</p>
@@ -646,20 +646,20 @@ async function sendCommentRequest(obj) {
         blogPostId: blog.id,
         blogPostCreatorId: blog.authorId,
         commentText: S('#comment-form-content').val(),
+        getBlog: true
     }
 
-    console.log('sendCommentReq', obj, blog, data)
 
     $.ajax({
         url: `api/comment/`,
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(response) {
+        success: async function(response) {
             response.cardId = obj.cardId
             hideModal()
-            response.blogCardId = obj.cardId
-            addComment(response)
+            localBlogsData[obj.cardId] = response
+            loadBlog(response)
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -839,6 +839,7 @@ async function addComment(comment) {
     const commentHtml = await getCommentTemplate(comment)
 
     S(`#${comment.blogCardId}`).find('.comments-container').append( commentHtml )
+    S('.comments-count').text(`Comments: ${localBlogsData[comment.blogCardId].blog_comments.length}`)
 }
 
 function loadSettingsPage(){

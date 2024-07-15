@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Comments } = require('../../models');
+const { Comments, BlogPost } = require('../../models');
 const c = require('../../utils/helpers').c
 const whenLoggedIn = require('../../utils/auth').whenLoggedIn
 
@@ -12,6 +12,18 @@ router.post('/', whenLoggedIn, async (req, res) => {
         req.body.commentCreatorName = req.session.currUser.name
 
         const comment = await Comments.create({ ...req.body })
+
+        if(req.body.getBlog) {
+            const blogPost = await BlogPost.findByPk(req.body.blogPostId, {
+                include: [
+                    {
+                        model: Comments,
+                        attributes: ['id', 'commentText', 'commentCreatorId', 'commentCreatorName', 'blogPostId', 'blogPostCreatorId', 'createdAt'],
+                    },
+                ],
+            })
+            return res.status(200).json(blogPost)
+        }
 
         res.status(200).json(comment)
         
