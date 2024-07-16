@@ -17,7 +17,6 @@ router.get('/', async (req, res) => {
             user_id: req.session?.user_id,
             currUser: req.session?.currUser,
         }
-        console.log(c('obj:', 'y'), obj);
         res.render('homepage', obj);
     } catch (err) {
         res.status(500).json(err);

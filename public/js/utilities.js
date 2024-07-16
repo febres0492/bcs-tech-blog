@@ -162,6 +162,7 @@ function logout() {
         type: 'POST',
         success: function(response) {
             window.location.href='/'
+            userData = { }
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -345,7 +346,6 @@ function S(el){
 }
 
 function formatDateTime(datetime) {
-    console.log('datetime:', datetime)
     const options = {
         year: 'numeric',
         month: '2-digit',
@@ -361,8 +361,7 @@ function formatDateTime(datetime) {
 }
 
 async function getCommentTemplate(comment) {
-
-    const currUser = await getCurUser()
+    const currUser = getCurUser()
     const isBlogAuthor = currUser.id == comment.blogPostCreatorId
     const iscomentCreator = currUser.id == comment.commentCreatorId
     const objStr = JSON.stringify({cardId:comment.cardId, iscomentCreator: iscomentCreator}).replace(/"/g, "'")
@@ -398,25 +397,24 @@ async function getCommentTemplate(comment) {
     return str
 }
 
-function getCurUser() {
+async function getCurUser() {
 
-    if(userData.id != null){
+    if (usaData.id != null) {
         return userData
     } else {
-        return $.ajax({
-            url: 'api/user/current_user',
-            type: 'GET',
-            success: function(response) {
-                userData = response
-                $('.account-btn').text(response.name)
-                return response
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error)
-            }
-        });
+        try {
+            const response = await $.ajax({
+                url: 'api/user/current_user',
+                type: 'GET'
+            })
+            userData = response
+            $('.account-btn').text(response.name)
+            return response
+        } catch (error) {
+            console.error('Error:', error)
+            throw error
+        }
     }
-
 }
 
 async function showPostBlogForm() { 
@@ -765,7 +763,7 @@ async function loadDashboard(){
     renderBlogs(userBlogs)
 }
 
-async function loadBlog(obj, vals){
+function loadBlog(obj, vals){
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
     
     if(vals?.isNewBlog){
@@ -773,7 +771,7 @@ async function loadBlog(obj, vals){
         localBlogsData[obj.cardId] = obj
     }
     const blog = localBlogsData[obj.cardId]
-    const currUser = await getCurUser()
+    const currUser = getCurUser()
     const isAuthor = currUser.id == blog.authorId
 
     const objStr = JSON.stringify({cardId: obj.cardId}).replace(/"/g, "'")
