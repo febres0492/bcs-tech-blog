@@ -286,14 +286,18 @@ function getPartialBlogCardTemplate(obj){
 function getBlogCardTemplate(obj) {
 
     const blog = localBlogsData[obj.cardId]
-    // const isAuthor = obj.isAuthor || false
     const objStr = JSON.stringify(obj).replace(/"/g, "'")
+
+    const datetime = new Date(blog.createdAt).toLocaleString().split(',')
 
     return `
         <div id="${blog.cardId}" class="blog-card rounded bg-l1 p-3 mb-3">
-            <div class="d-flex jcsb p-2">
+            <div class="d-flex jcsb">
                 <p class="m-0">By: ${blog.authorName}</p>
-                <p class="m-0">${new Date(blog.createdAt).toLocaleString()}</p>
+                <div>
+                    <p class="m-0">${datetime[0]}</p>
+                    <p class="m-0">${datetime[1]}</p>
+                </div>
             </div>
             <hr>
             <div class="rounded p-3 bg-l1">
@@ -322,7 +326,6 @@ function prependBlog(blog) {
 async function renderBlogs(blogs) {
     localBlogsData = {}
     blogs = blogs || await getBlogs()
-    // blogs = blogs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
     
     if(blogs.length == 0){
         S('#blogs-container').append(`
@@ -336,8 +339,11 @@ async function renderBlogs(blogs) {
 }
 
 function S(el){
+    const val = el
     el = $(el)
-    if(el.length == 0){ throw new Error('Element not found') }
+    if(el.length == 0){ 
+        throw new Error(`Element ${val} not found`) 
+    }
     return el
 }
 
@@ -565,9 +571,9 @@ function sendPostBlogRequest(ev) {
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ title, content }),
-        success: function() {
+        success: function(blog) {
             S('#blogs-container').empty()
-            renderBlogs()
+            loadBlog(blog, {isNewBlog: true})
         },
         error: function(xhr, status, error) {
             console.error('Error:', error)
@@ -741,8 +747,13 @@ async function loadDashboard(){
     renderBlogs(userBlogs)
 }
 
-async function loadBlog(obj){
+async function loadBlog(obj, vals){
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
+    
+    if(vals?.isNewBlog){
+        obj = addingBlogCardId(obj)
+        localBlogsData[obj.cardId] = obj
+    }
     const blog = localBlogsData[obj.cardId]
     const currUser = await getCurUser()
     const isAuthor = currUser.id == blog.authorId
@@ -751,11 +762,10 @@ async function loadBlog(obj){
 
     S('#blogs-container').empty()
     S('#blogs-container').append(`
-        <div class="d-flex jcc aic rel py-3">
-            <div class="abs" style="--left:0;">${backBtnStr}</div>
-            <h2 class="text-center m-0 blog-title">${blog.title || 'No Title'}</h2>
+        <div class="df jcsb aic rel py-3">
+            <div class="" style="--left:0;">${backBtnStr}</div>
             ${isAuthor ? `
-                <div class="abs" style="--right:0;">
+                <div class="" style="--right:0;">
                     <div class="dropdown dropmenu">
                         <button class="btn btn-sm dropbtn dropdown-toggle bg-d2 text-white">
                             Options
@@ -774,6 +784,7 @@ async function loadBlog(obj){
                 </div>
             ` : ''}
         </div>
+        <h2 class="text-center mb-3 blog-title">${blog.title || 'No Title'}</h2>
     `)
     renderBlogCard(blog)
 }
@@ -839,7 +850,7 @@ async function addComment(comment) {
     const commentHtml = await getCommentTemplate(comment)
 
     S(`#${comment.blogCardId}`).find('.comments-container').append( commentHtml )
-    S('.comments-count').text(`Comments: ${localBlogsData[comment.blogCardId].blog_comments.length}`)
+    $('.comments-count').text(`Comments: ${localBlogsData[comment.blogCardId].blog_comments.length}`)
 }
 
 function loadSettingsPage(){
