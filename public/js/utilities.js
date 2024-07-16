@@ -361,7 +361,7 @@ function formatDateTime(datetime) {
 }
 
 async function getCommentTemplate(comment) {
-    const currUser = getCurUser()
+    const currUser = await getCurUser()
     const isBlogAuthor = currUser.id == comment.blogPostCreatorId
     const iscomentCreator = currUser.id == comment.commentCreatorId
     const objStr = JSON.stringify({cardId:comment.cardId, iscomentCreator: iscomentCreator}).replace(/"/g, "'")
@@ -486,9 +486,9 @@ async function showEditBlogForm(obj) {
 }
 
 // create a function to let the user know that they have to login to comment
-function loginRequired() {
+async function loginRequired() {
     // checking if user is logged in
-    const currUser = getCurUser()
+    const currUser = await getCurUser()
     if (!currUser.id) {
         S('.modal-body').empty()
         S('.modal-body').html(`
@@ -695,7 +695,7 @@ async function sendDeleteCommentRequest(obj) {
     const blogCardId = obj.cardId.split('_')[0]
     const blog = localBlogsData[blogCardId]
     const comment = blog.blog_comments.find(comment => comment.cardId == obj.cardId)
-    const currUser = getCurUser()
+    const currUser = await getCurUser()
     const isCommentCreator = currUser.id == comment.commentCreatorId
     const whoIsDeleting = isCommentCreator ? 'Comment Creator' : 'Blogpost Creator'
     obj.commentText = `Deleted by ${whoIsDeleting}`
@@ -763,7 +763,7 @@ async function loadDashboard(){
     renderBlogs(userBlogs)
 }
 
-function loadBlog(obj, vals){
+async function loadBlog(obj, vals){
     obj = typeof obj == 'string' ?  JSON.parse(obj.replace(/'/g, '"')) : obj
     
     if(vals?.isNewBlog){
@@ -771,7 +771,7 @@ function loadBlog(obj, vals){
         localBlogsData[obj.cardId] = obj
     }
     const blog = localBlogsData[obj.cardId]
-    const currUser = getCurUser()
+    const currUser = await getCurUser()
     const isAuthor = currUser.id == blog.authorId
 
     const objStr = JSON.stringify({cardId: obj.cardId}).replace(/"/g, "'")
@@ -831,9 +831,9 @@ function showDeleteConfirmation(obj) {
     S('#bs-modal').modal('show')
 }
 
-function renderBlogCard(blog) {
+async function renderBlogCard(blog) {
     
-    const currUser = getCurUser()
+    const currUser = await getCurUser()
     const isAuthor = currUser.id == blog.authorId
 
     blog = addingBlogCardId(blog)
