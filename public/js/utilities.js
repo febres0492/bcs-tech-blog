@@ -399,7 +399,7 @@ async function getCommentTemplate(comment) {
 
 async function getCurUser() {
 
-    if (usaData.id != null) {
+    if (userData.id != null) {
         return userData
     } else {
         try {
