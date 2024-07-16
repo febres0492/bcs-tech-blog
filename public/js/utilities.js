@@ -180,12 +180,12 @@ async function searchInput(ev) {
 
     S('#blogs-container').empty()
     S('#blogs-container').append(`
-        <div class="d-flex jcc aic rel py-3">
-            <div class="abs" style="--left:0;">${backBtnStr}</div>
+        <div class="d-flex flex-column py-3" style="--g:3;">
+            <div class="" style="--left:0;">${backBtnStr}</div>
             <h2 class="text-center m-0">Search Results</h2>
         </div>
     `)
-    const search = document.querySelector('#searchBar').value
+    const search = S('#searchBar').val()
     const res = await sendBlogQuerySearch(search)
     renderBlogs(res)
 }
@@ -288,25 +288,22 @@ function getBlogCardTemplate(obj) {
     const blog = localBlogsData[obj.cardId]
     const objStr = JSON.stringify(obj).replace(/"/g, "'")
 
-    const datetime = new Date(blog.createdAt).toLocaleString().split(',')
+    // const datetime = new Date(blog.createdAt).toLocaleString().split(',')
+    const datetime = formatDateTime(blog.createdAt)
 
     return `
         <div id="${blog.cardId}" class="blog-card rounded bg-l1 p-3 mb-3">
-            <div class="d-flex jcsb">
-                <p class="m-0">By: ${blog.authorName}</p>
-                <div>
-                    <p class="m-0">${datetime[0]}</p>
-                    <p class="m-0">${datetime[1]}</p>
-                </div>
-            </div>
-            <hr>
-            <div class="rounded p-3 bg-l1">
+            <div class="rounded p-2 px-3 bg-l1">
                 <p class="blog-content m-0 pre-wrap">${blog.content}</p>
+            </div>
+            <div class="df jcsb p-0 py-2" style="--gx:8; --gy:1; --ch-m:0;">
+                <p>By: ${blog.authorName}</p>
+                <p>Creadted: ${datetime.dateTime}</p>
+                <p>Last Updated: ${formatDateTime(blog.updatedAt).dateTime}</p>
             </div>
             <hr>
             <div class="d-flex jcsb pb-2">
                 <p class="m-0">Comments: ${blog.blog_comments?.length || 0}</p>
-                <p class="m-0">Last Updated: ${new Date(blog.updatedAt).toLocaleString()}</p>
             </div>
             <div class="comments-container"></div>
             <hr>
@@ -347,6 +344,22 @@ function S(el){
     return el
 }
 
+function formatDateTime(datetime) {
+    console.log('datetime:', datetime)
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true 
+    }
+    const dateTime = new Date(datetime).toLocaleDateString('en-US', options)
+    const date = dateTime.split(', ')[0]
+    const time = dateTime.split(', ')[1]
+    return { dateTime, date, time }
+}
+
 async function getCommentTemplate(comment) {
 
     const currUser = await getCurUser()
@@ -356,13 +369,18 @@ async function getCommentTemplate(comment) {
     const isNotDeleted = !comment.commentText.includes('Deleted by')
     const isDisabled = !isNotDeleted ? 'bg-ac2' : ''
 
+    const datetime = formatDateTime(comment.createdAt)
+
     const str = `
-        <div id="${comment.cardId}" class="comment-card p-3 mb-3 rounded bg-d2 ${isDisabled ? 'text-secondary' : ''}">
-            <div class="d-flex jcsb">
-                <p class="m-0">By: ${comment.commentCreatorName}</p>
-                <p class="m-0">${new Date(comment.createdAt).toLocaleString()}</p>
+        <div id="${comment.cardId}" class="comment-card pt-1 px-2 pb-2 mb-3 rounded bg-d2 ${isDisabled ? 'text-secondary' : ''}">
+            <div class="d-flex jcsb flex-column flex-sm-row">
+                <p class="m-0 fg">By: ${comment.commentCreatorName}</p>
+                <div class="df" style="--g:2">
+                    <p class="m-0">${datetime.date}</p>
+                    <p class="m-0">${datetime.time}</p>
+                </div>
             </div>
-            <p class="comment-text m-0 pre-wrap">${comment.commentText}</p>
+            <p class="comment-text m-0 pre-wrap px-1 bg-d2">${comment.commentText}</p>
 
             ${ isNotDeleted && (iscomentCreator || isBlogAuthor) ? 
                 `<div class="dropright dropmenu">

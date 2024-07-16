@@ -38,6 +38,7 @@ img {max-width: 100%;}
 .jcsb{ justify-content: space-between; }
 .jcsa{ justify-content: space-around; }
 .jcse{ justify-content: space-evenly; }
+.jcfe{ justify-content: flex-end; }
 .overflow-hidden{overflow: hidden;}
 .no-wrap {flex-wrap: nowrap;}
 .nowrap { white-space: nowrap !important; }
