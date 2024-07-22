@@ -7,7 +7,7 @@
 ## Description
 
 This project is a web-based blog platform that allows users to create, read, update, and delete blog posts. Users can also search for blog posts.  
-The platform features user authentication so that only registered users can create and manage their own blog posts.  
+The platform features user authentication so only registered users can create and manage their blog posts.  
 
 <br>
 
@@ -34,10 +34,10 @@ https://bcs-tech-blog.onrender.com/
 
 - **User Authentication**: Secure login and signup functionality.
 - **Create Blog Posts**: Registered users can create new blog posts.
-- **Update and Delete Blog Posts**: Users can edit or delete their own blog posts.
+- **Update and Delete Blog Posts**: Users can edit or delete their blog posts.
 - **Search Functionality**: Users can search for blog posts by title and content.
 - **Comments**: Users can comment on blog posts.
-- **Responsive Design**: The platform is optimized for both desktop and mobile devices.
+- **Responsive Design**: The platform is optimized for desktop and mobile devices.
 
 <br>
 
@@ -58,15 +58,15 @@ Carlos Febres
 
 ## Contribution
 Contributions are welcome  
-Please get in contant for details on our code of conduct, and the process for submitting pull requests to us.
+Please get in contact for details on our code of conduct, and the process for submitting pull requests to us.
 
 
 <br>
 
 ## Questions
-For questions please get in contant.
-Github Profile: https://github.com/Example123
-Email: Example123@gmail.com
+For questions please get in contact.
+Github Profile: https://github.com/febres0492
+Email: febres0492@gmail.com
 
 <br>
 
