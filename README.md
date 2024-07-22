@@ -64,9 +64,9 @@ Please get in contact for details on our code of conduct, and the process for su
 <br>
 
 ## Questions
-For questions please get in contact.
-Github Profile: https://github.com/febres0492
-Email: febres0492@gmail.com
+For questions please get in contact.  
+Github Profile: https://github.com/febres0492  
+Email: febres0492@gmail.com  
 
 <br>
 
